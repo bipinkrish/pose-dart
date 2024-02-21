@@ -9,7 +9,7 @@ environment:
   sdk: ^3.0.0
 
 dependencies:
-  scidart: ^0.0.2-dev.12
+  # 
 
 dev_dependencies:
   lints: ^2.0.0

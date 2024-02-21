@@ -4,7 +4,7 @@ This is a `dart` implementation of its [python counterpart](https://github.com/s
 
 This repository helps developers interested in Sign Language Processing (SLP) by providing a complete toolkit for working with poses. It includes a file format with Python and Javascript readers and writers, which hopefully makes its usage simple.
 
-### File Format Structure
+## File Format Structure
 
 The file format is designed to accommodate any pose type, an arbitrary number of people, and an indefinite number of frames. 
 Therefore it is also very suitable for video data, and not only single frames.
@@ -17,15 +17,21 @@ At the core of the file format is `Header` and a `Body`.
     - The exact positions of these points. (Where do they exist.)
     - The connections between these points. (How are they connected.)
 
-
 ## Features
 
-
-## Getting started
-
+- [x] Loading Pose File
+- [ ] Visualization
 
 ## Usage
 
+```dart
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:pose/pose.dart';
 
-## Additional information
-
+void main() {
+  File file = File("pose_file.pose");
+  Uint8List fileContent = file.readAsBytesSync();
+  Pose pose = Pose.read(fileContent);
+}
+```

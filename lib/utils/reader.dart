@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import '../numdart.dart' show Struct, ConstStructs;
-import '../numdart.dart' as nd;
+import 'package:pose/numdart.dart' show Struct, ConstStructs;
+import 'package:pose/numdart.dart' as nd;
 
 class BufferReader {
   Uint8List buffer;

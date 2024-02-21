@@ -1,3 +1,3 @@
 library;
 
-export 'src/pose_base.dart';
+export 'src/pose.dart';

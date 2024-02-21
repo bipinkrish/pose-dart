@@ -197,7 +197,7 @@ List<List<dynamic>> full(List<int> shape, dynamic fillValue, {Type? dtype}) {
 
 class MaskedArray {
   List<List<dynamic>> data;
-  List<List<bool>> mask;
+  List<List<int>> mask;
 
   MaskedArray(this.data, this.mask);
 
@@ -206,7 +206,7 @@ class MaskedArray {
     for (int i = 0; i < data.length; i++) {
       List<dynamic> row = [];
       for (int j = 0; j < data[i].length; j++) {
-        if (!mask[i][j]) {
+        if (mask[i][j] != 0) {
           row.add(_round(data[i][j]));
         } else {
           row.add(data[i][j]);
