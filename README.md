@@ -19,7 +19,10 @@ At the core of the file format is `Header` and a `Body`.
 
 ## Features
 
-- ✔️ Loading Pose File
+- ✔️ Reading
+- ❌ Normalizing
+- ❌ Augmentation
+- ❌ Interpolation
 - ❌ Visualization
 
 ## Usage
