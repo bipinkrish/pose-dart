@@ -3,6 +3,7 @@
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+/// Represents a structure with a specified format and size.
 class Struct {
   String format;
   int size;
@@ -10,6 +11,7 @@ class Struct {
   Struct(this.format, this.size);
 }
 
+/// Contains predefined Struct objects for commonly used data types.
 class ConstStructs {
   static Struct float = Struct("<f", 4);
   static Struct short = Struct("<h", 2);
@@ -18,23 +20,20 @@ class ConstStructs {
   static Struct triple_ushort = Struct("<HHH", 6);
 }
 
+/// Converts bytes to a floating-point number.
 double bytesToFloat(List<int> bytesData) {
-  // Assuming the byte data is in little-endian format (change as needed)
   int intValue = 0;
   for (int i = 0; i < bytesData.length; i++) {
     intValue += bytesData[i] << (i * 8);
   }
-
-  // Determine sign, exponent, and mantissa bits
   int sign = (intValue & (1 << (8 * bytesData.length - 1))) != 0 ? -1 : 1;
   int exponent = ((intValue >> 23) & 0xFF) - 127;
   int mantissa = (intValue & 0x7FFFFF) | 0x800000;
-
-  // Calculate float value
   num result = sign * mantissa * math.pow(2, exponent - 23);
   return result.toDouble();
 }
 
+/// Converts bytes to an integer.
 int bytesToInt(List<int> bytesData,
     {bool signed = false, Endian byteOrder = Endian.little}) {
   ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytesData));
@@ -67,6 +66,7 @@ int bytesToInt(List<int> bytesData,
   }
 }
 
+/// Calculates the product of a sequence of integers.
 int prod(List<int> seq) {
   int result = 1;
   for (int num in seq) {
@@ -75,8 +75,10 @@ int prod(List<int> seq) {
   return result;
 }
 
+/// Represents a function that converts bytes to a numeric value.
 typedef NumConversionFunction = num Function(List<int>);
 
+/// Constructs an n-dimensional array from a buffer based on the given shape and format.
 List<dynamic> ndarray(List<int> shape, Struct s, List<int> buffer, int offset) {
   NumConversionFunction func;
   if (s.format == "<H") {
@@ -92,52 +94,40 @@ List<dynamic> ndarray(List<int> shape, Struct s, List<int> buffer, int offset) {
   if (shape.length == 2) {
     for (int i = 0; i < shape[0]; i++) {
       List<dynamic> row = [];
-
       for (int j = 0; j < shape[1]; j++) {
         row.add(func(buffer.sublist(offset, offset + s.size)));
         offset += s.size;
       }
-
       matrix.add(row);
     }
   } else if (shape.length == 3) {
     for (int i = 0; i < shape[0]; i++) {
       List<dynamic> innerMatrix = [];
-
       for (int j = 0; j < shape[1]; j++) {
         List<dynamic> row = [];
-
         for (int k = 0; k < shape[2]; k++) {
           row.add(func(buffer.sublist(offset, offset + s.size)));
           offset += s.size;
         }
-
         innerMatrix.add(row);
       }
-
       matrix.add(innerMatrix);
     }
   } else if (shape.length == 4) {
     for (int i = 0; i < shape[0]; i++) {
       List<dynamic> innerMatrix1 = [];
-
       for (int j = 0; j < shape[1]; j++) {
         List<dynamic> innerMatrix2 = [];
-
         for (int k = 0; k < shape[2]; k++) {
           List<dynamic> innerMatrix3 = [];
-
           for (int l = 0; l < shape[3]; l++) {
             innerMatrix3.add(func(buffer.sublist(offset, offset + s.size)));
             offset += s.size;
           }
-
           innerMatrix2.add(innerMatrix3);
         }
-
         innerMatrix1.add(innerMatrix2);
       }
-
       matrix.add(innerMatrix1);
     }
   } else {
@@ -147,6 +137,7 @@ List<dynamic> ndarray(List<int> shape, Struct s, List<int> buffer, int offset) {
   return matrix;
 }
 
+/// Stacks arrays along a specified axis.
 List<List<dynamic>> stack(List<List<dynamic>> arrays, {int axis = 0}) {
   if (axis == 0) {
     return List.generate(arrays[0].length,
@@ -158,18 +149,17 @@ List<List<dynamic>> stack(List<List<dynamic>> arrays, {int axis = 0}) {
   }
 }
 
+/// Computes the mean along a specified axis.
 List<double> mean(List<List<num>> values, {int? axis}) {
   if (values.isEmpty) {
     return [double.nan]; // Return NaN for empty lists
   }
 
   if (axis == null) {
-    // Calculate the mean of all values
     List<num> flattenedValues = values.expand((list) => list).toList();
     num total = flattenedValues.reduce((a, b) => a + b);
     return [total / flattenedValues.length];
   } else if (axis == 0) {
-    // Calculate the mean along columns
     List<num> columnSums = List<num>.filled(values[0].length, 0);
     for (List<num> row in values) {
       for (int i = 0; i < row.length; i++) {
@@ -178,7 +168,6 @@ List<double> mean(List<List<num>> values, {int? axis}) {
     }
     return columnSums.map((sum) => sum / values.length).toList();
   } else if (axis == 1) {
-    // Calculate the mean along rows
     return values
         .map((row) => row.reduce((a, b) => a + b) / row.length)
         .toList();
@@ -187,20 +176,19 @@ List<double> mean(List<List<num>> values, {int? axis}) {
   }
 }
 
+/// Constructs a multidimensional array filled with a specified value.
 List<List<dynamic>> full(List<int> shape, dynamic fillValue, {Type? dtype}) {
-  // if (dtype == null) {
   return List.generate(shape[0], (_) => List.filled(shape[1], fillValue));
-  // } else {
-  //   return List.generate(shape[0], (_) => List.filled(shape[1], dtype(fillValue)));
-  // }
 }
 
+/// Represents a masked array with data and mask.
 class MaskedArray {
   List<List<dynamic>> data;
   List<List<int>> mask;
 
   MaskedArray(this.data, this.mask);
 
+  /// Rounds the data values in the masked array.
   MaskedArray rint() {
     List<List<dynamic>> roundedData = [];
     for (int i = 0; i < data.length; i++) {

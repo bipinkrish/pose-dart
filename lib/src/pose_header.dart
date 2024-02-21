@@ -1,8 +1,10 @@
 import 'dart:math';
-
 import 'package:pose/utils/reader.dart';
 import 'package:pose/numdart.dart';
 
+/// Class representing a component of a pose header.
+///
+/// This class contains information about the points, limbs, colors, and format of a pose header component.
 class PoseHeaderComponent {
   final String name;
   final List<String> points;
@@ -11,11 +13,18 @@ class PoseHeaderComponent {
   final String format;
   late List<int?> relativeLimbs;
 
+  /// Constructor for PoseHeaderComponent.
+  ///
+  /// Takes [name], [points], [limbs], [colors], and [format] as parameters.
   PoseHeaderComponent(
       this.name, this.points, this.limbs, this.colors, this.format) {
     relativeLimbs = getRelativeLimbs();
   }
 
+  /// Reads a PoseHeaderComponent from the reader based on the specified version.
+  ///
+  /// Takes [version] and [reader] as parameters.
+  /// Returns a PoseHeaderComponent instance.
   static PoseHeaderComponent read(double version, BufferReader reader) {
     String name = reader.unpackStr();
     String pointFormat = reader.unpackStr();
@@ -39,6 +48,9 @@ class PoseHeaderComponent {
     return PoseHeaderComponent(name, points, limbs, colors, pointFormat);
   }
 
+  /// Calculates the relative limbs for the component.
+  ///
+  /// Returns a list of relative limbs.
   List<int?> getRelativeLimbs() {
     Map<int, int> limbsMap = {};
     for (int i = 0; i < limbs.length; i++) {
@@ -48,13 +60,23 @@ class PoseHeaderComponent {
   }
 }
 
+/// Class representing dimensions of a pose header.
+///
+/// This class contains information about the width, height, and depth of a pose header.
 class PoseHeaderDimensions {
   final int width;
   final int height;
   final int depth;
 
+  /// Constructor for PoseHeaderDimensions.
+  ///
+  /// Takes [width], [height], and [depth] as parameters.
   PoseHeaderDimensions(this.width, this.height, this.depth);
 
+  /// Reads PoseHeaderDimensions from the reader based on the specified version.
+  ///
+  /// Takes [version] and [reader] as parameters.
+  /// Returns a PoseHeaderDimensions instance.
   static PoseHeaderDimensions read(double version, BufferReader reader) {
     int width = reader.unpack(ConstStructs.ushort);
     int height = reader.unpack(ConstStructs.ushort);
@@ -64,15 +86,25 @@ class PoseHeaderDimensions {
   }
 }
 
+/// Class representing a pose header.
+///
+/// This class contains information about the version, dimensions, components, and bounding box status of a pose header.
 class PoseHeader {
   final double version;
   final PoseHeaderDimensions dimensions;
   final List<PoseHeaderComponent> components;
   final bool isBbox;
 
+  /// Constructor for PoseHeader.
+  ///
+  /// Takes [version], [dimensions], [components], and [isBbox] as parameters.
   PoseHeader(this.version, this.dimensions, this.components,
       {this.isBbox = false});
 
+  /// Reads a PoseHeader from the reader.
+  ///
+  /// Takes [reader] as a parameter.
+  /// Returns a PoseHeader instance.
   static PoseHeader read(BufferReader reader) {
     double version = reader.unpack(ConstStructs.float);
     PoseHeaderDimensions dimensions =

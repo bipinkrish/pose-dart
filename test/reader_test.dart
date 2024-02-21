@@ -36,7 +36,7 @@ void main() {
       expect(unpacked, equals(expected));
     });
 
-    test('Unpack numpy test', () {
+    test('Unpack num test', () {
       List<List<double>> expected = [
         [1.0, 2.5],
         [3.5, 4.5]
@@ -67,7 +67,7 @@ void main() {
       ]); // Equivalent to struct.pack("<ffff", 1., 2.5, 3.5, 4.5)
 
       BufferReader reader = BufferReader(buffer);
-      List<dynamic> unpacked = reader.unpackNumpy(ConstStructs.float, [2, 2]);
+      List<dynamic> unpacked = reader.unpackNum(ConstStructs.float, [2, 2]);
       expect(unpacked, equals(expected));
 
       unpacked[0][0] -= 0.1; // Modify the first element of the array

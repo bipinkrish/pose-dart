@@ -1,33 +1,37 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:pose/numdart.dart' show Struct, ConstStructs;
 import 'package:pose/numdart.dart' as nd;
 
+/// Class for reading data from a byte buffer.
 class BufferReader {
   Uint8List buffer;
   int readOffset;
 
+  /// Constructs a BufferReader with the given byte buffer.
   BufferReader(this.buffer) : readOffset = 0;
 
+  /// Returns the number of bytes left to read from the buffer.
   int bytesLeft() {
     return buffer.length - readOffset;
   }
 
+  /// Reads a fixed-size chunk of bytes from the buffer.
   Uint8List unpackF(int size) {
     Uint8List data = buffer.sublist(readOffset, readOffset + size);
     advance(Struct("<>", size));
     return data;
   }
 
-  List<dynamic> unpackNumpy(Struct s, List<int> shape) {
+  /// Reads numeric data from the buffer and constructs an n-dimensional array.
+  List<dynamic> unpackNum(Struct s, List<int> shape) {
     List<dynamic> arr = nd.ndarray(shape, s, buffer, readOffset);
     int arrayBufferSize = nd.prod(shape);
     advance(s, arrayBufferSize);
-
     return arr;
   }
 
+  /// Unpacks a single value from the buffer based on the given format.
   dynamic unpack(Struct s) {
     Uint8List data = buffer.sublist(readOffset, readOffset + s.size);
     advance(s);
@@ -52,10 +56,12 @@ class BufferReader {
     return result;
   }
 
+  /// Advances the read offset by the size of the given format multiplied by [times].
   void advance(Struct s, [int times = 1]) {
     readOffset += s.size * times;
   }
 
+  /// Unpacks a string from the buffer.
   String unpackStr() {
     int length = unpack(ConstStructs.ushort);
     Uint8List bytes_ = unpackF(length);

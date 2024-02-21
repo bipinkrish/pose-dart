@@ -19,8 +19,8 @@ At the core of the file format is `Header` and a `Body`.
 
 ## Features
 
-- [x] Loading Pose File
-- [ ] Visualization
+- ✔️ Loading Pose File
+- ❌ Visualization
 
 ## Usage
 
