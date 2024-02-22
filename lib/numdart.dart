@@ -183,7 +183,7 @@ List<List<dynamic>> full(List<int> shape, dynamic fillValue, {Type? dtype}) {
 
 /// Represents a masked array with data and mask.
 class MaskedArray {
-  List<List<dynamic>> data;
+  List data;
   List<List<int>> mask;
 
   MaskedArray(this.data, this.mask);
@@ -209,7 +209,7 @@ class MaskedArray {
     return _roundList(data);
   }
 
-  List _round(dynamic elem) {
+  dynamic _round(dynamic elem) {
     if (elem is List) {
       return _roundList(elem);
     } else {
