@@ -3,7 +3,7 @@
 import 'package:pose/numdart.dart' show MaskedArray, ConstStructs;
 import 'package:pose/numdart.dart' as nd;
 import 'package:pose/src/pose_body.dart' show PoseBody;
-import 'package:pose/src/pose_header.dart' show PoseHeader;
+import 'package:pose/src/pose_header.dart' show PoseHeader, PoseHeaderComponent;
 import 'package:pose/utils/reader.dart';
 
 /// Class representing a NumPoseBody, extending PoseBody.
@@ -34,34 +34,34 @@ class NumPoseBody extends PoseBody {
     frames = reader.unpack(ConstStructs.ushort);
 
     // Calculate dimensions and points based on header components.
-    var dims = header.components
+    int dims = header.components
             .map((c) => c.format.length)
             .reduce((value, element) => value > element ? value : element) -
         1;
-    var points = header.components
+    int points = header.components
         .map((c) => c.points.length)
         .reduce((value, element) => value + element);
 
     // Iterate over frames.
-    for (var i = 0; i < frames; i++) {
-      var people = reader.unpack(ConstStructs.ushort);
+    for (int i = 0; i < frames; i++) {
+      int people = reader.unpack(ConstStructs.ushort);
       List<List<dynamic>> peopleD = [];
       List<List<double>> peopleC = [];
 
       // Iterate over people in each frame.
-      for (var pid = 0; pid < people; pid++) {
+      for (int pid = 0; pid < people; pid++) {
         reader.advance(ConstStructs.short);
         List<MaskedArray> personD = [];
         List<double> personC = [];
 
         // Iterate over components in header.
-        for (var component in header.components) {
+        for (PoseHeaderComponent component in header.components) {
           List<List<dynamic>> pointsList = [];
           List<dynamic> confidenceList = [];
 
           // Iterate over points in component.
-          for (var j = 0; j < component.points.length; j++) {
-            var point = reader.unpack(ConstStructs.float);
+          for (int j = 0; j < component.points.length; j++) {
+            List point = reader.unpack(ConstStructs.float);
             pointsList.add(point[0]);
             confidenceList.add(point[1]);
           }

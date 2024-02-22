@@ -8,8 +8,6 @@ import 'package:pose/numdart.dart';
 ///
 /// This class provides functionality to read pose body data.
 class PoseBody {
-  static final String tensorReader = 'ABSTRACT-DO-NOT-USE';
-
   final double fps;
   final dynamic data;
   final List<dynamic> confidence;
@@ -37,14 +35,11 @@ class PoseBody {
   /// Returns the read data.
   static dynamic read_v0_1(
       PoseHeader header, BufferReader reader, Map<String, dynamic> kwargs) {
-    int fps, _frames;
-    fps = reader.unpack(ConstStructs.double_ushort)[0];
-
-    _frames = reader.unpack(ConstStructs.ushort);
+    List<dynamic> lst = reader.unpack(ConstStructs.double_ushort);
     int _people = reader.unpack(ConstStructs.ushort);
-    if (_people == 0) {
-      _people = 1;
-    }
+    int fps = lst[0];
+    int _frames = lst[1];
+
     int _points =
         header.components.map((c) => c.points.length).reduce((a, b) => a + b);
     int _dims = header.components
@@ -53,9 +48,9 @@ class PoseBody {
         1;
     _frames = reader.bytesLeft() ~/ (_people * _points * (_dims + 1) * 4);
 
-    var data = read_v0_1_frames(_frames, [_people, _points, _dims], reader,
+    List data = read_v0_1_frames(_frames, [_people, _points, _dims], reader,
         kwargs['startFrame'], kwargs['endFrame']);
-    var confidence = read_v0_1_frames(_frames, [_people, _points], reader,
+    List confidence = read_v0_1_frames(_frames, [_people, _points], reader,
         kwargs['startFrame'], kwargs['endFrame']);
 
     return PoseBody(fps.toDouble(), data, confidence);
@@ -67,8 +62,7 @@ class PoseBody {
   /// Returns the read data.
   static dynamic read_v0_1_frames(int frames, List<int> shape,
       BufferReader reader, int? startFrame, int? endFrame) {
-    var tensorReader = reader.unpackNum;
-    var s = ConstStructs.float;
+    Struct s = ConstStructs.float;
 
     int _frames = frames;
     if (startFrame != null && startFrame > 0) {
@@ -86,7 +80,7 @@ class PoseBody {
       _frames -= removeFrames;
     }
 
-    var tensor = tensorReader(ConstStructs.float, [_frames, ...shape]);
+    List tensor = reader.unpackNum(ConstStructs.float, [_frames, ...shape]);
 
     if (removeFrames != 0) {
       reader.advance(s, (removeFrames * shape.reduce((a, b) => a * b)));

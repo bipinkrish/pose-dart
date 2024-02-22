@@ -205,11 +205,11 @@ class MaskedArray {
     return MaskedArray(roundedData, mask);
   }
 
-  dynamic round() {
+  List round() {
     return _roundList(data);
   }
 
-  dynamic _round(dynamic elem) {
+  List _round(dynamic elem) {
     if (elem is List) {
       return _roundList(elem);
     } else {
@@ -217,7 +217,7 @@ class MaskedArray {
     }
   }
 
-  dynamic _roundList(List<dynamic> elem) {
+  List _roundList(List<dynamic> elem) {
     List<dynamic> roundedList = [];
     for (int i = 0; i < elem.length; i++) {
       roundedList.add(_round(elem[i]));
