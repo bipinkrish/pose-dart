@@ -5,14 +5,14 @@ import 'package:pose/utils/reader.dart';
 import 'package:pose/numdart.dart';
 
 void main() {
-  group('BufferReader tests', () {
-    test('Advance test', () {
+  group('BufferReader Tests', () {
+    test('Advance Test', () {
       BufferReader reader = BufferReader(Uint8List(0));
       reader.advance(ConstStructs.float, 10);
       expect(reader.readOffset, equals(40));
     });
 
-    test('Unpack float test', () {
+    test('Unpack float Test', () {
       double expected = 5.5;
       Uint8List buffer = Uint8List.fromList(
           [0x00, 0x00, 0xb0, 0x40]); // Equivalent to struct.pack("<f", 5.5)
@@ -22,7 +22,7 @@ void main() {
       expect(unpacked, equals(expected));
     });
 
-    test('Unpack string test', () {
+    test('Unpack string Test', () {
       String expected = "hello";
       List<int> stringBytes = utf8.encode(expected);
       int length = stringBytes.length;
@@ -36,7 +36,7 @@ void main() {
       expect(unpacked, equals(expected));
     });
 
-    test('Unpack num test', () {
+    test('Unpack num Test', () {
       List<List<double>> expected = [
         [1.0, 2.5],
         [3.5, 4.5]

@@ -11,7 +11,7 @@ void main() {
     return Pose.read(fileContent);
   }
 
-  group('Pose tests', () {
+  group('Pose Tests', () {
     test("Mediapipe", () {
       Pose pose = getPose("test/data/mediapipe.pose");
 

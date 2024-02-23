@@ -9,3 +9,8 @@
 ## 1.0.2
 
 - More Tests
+
+## 1.1.0
+
+- Visualization
+

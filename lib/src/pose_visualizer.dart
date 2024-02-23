@@ -7,93 +7,118 @@ import 'package:image/image.dart';
 import 'package:pose/pose.dart';
 import 'package:pose/numdart.dart' as nd;
 import 'package:pose/numdart.dart' show MaskedArray;
+import 'package:pose/src/pose_header.dart';
 import 'package:tuple/tuple.dart';
 
 class PoseVisualizer {
   Pose pose;
   int? thickness;
-  double poseFps;
+  late double poseFps;
   Image? background;
 
-  PoseVisualizer(this.pose, {this.thickness, required this.poseFps});
+  PoseVisualizer(this.pose, {this.thickness}) {
+    poseFps = pose.body.fps;
+  }
 
   Image _drawFrame(MaskedArray frame, List frameConfidence, Image img) {
-    Pixel backgroundColor = img.getPixel(0, 0);
-    var t = thickness ?? (sqrt(img.width * img.height) / 150).round();
-    var radius = (t / 2).round();
+    Pixel pixelColor = img.getPixel(0, 0);
+    Tuple3<int, int, int> backgroundColor = Tuple3<int, int, int>.fromList(
+        [pixelColor.r, pixelColor.g, pixelColor.b]);
 
-    for (var i = 0; i < frame.data.length; i++) {
+    thickness ??= (sqrt(img.width * img.height) / 150).round();
+    int radius = (thickness! / 2).round();
+
+    for (int i = 0; i < frame.data.length; i++) {
       List person = frame.data[i];
       var personConfidence = frameConfidence[i];
-      var c = personConfidence;
 
       List<Tuple2<int, int>> points2D = List<Tuple2<int, int>>.from(
           person.map((p) => Tuple2<int, int>(p[0], p[1])));
 
       int idx = 0;
-      for (var component in pose.header.components) {
-        var colors = component.colors
-            .map((c) => img.getColor(c[0], c[1], c[2]))
-            .toList();
+      for (PoseHeaderComponent component in pose.header.components) {
+        List<Tuple3<int, int, int>> colors = [
+          for (var c in component.colors)
+            Tuple3<int, int, int>.fromList(c) // can be reversed
+        ];
 
-        List<num> _pointColor(int pI) {
-          var opacity = c[pI + idx];
-          var npColor = [
-            (pI % colors.length) * opacity + (1 - opacity) * backgroundColor.r,
-            (pI % colors.length) * opacity + (1 - opacity) * backgroundColor.g,
-            (pI % colors.length) * opacity + (1 - opacity) * backgroundColor.b,
-          ];
-          return npColor;
+        Tuple3<int, int, int> _pointColor(int pI) {
+          double opacity = personConfidence[pI + idx];
+          List nColor = colors[pI % component.colors.length]
+              .toList()
+              .map((e) => (e * opacity).toInt())
+              .toList();
+          List newColor = backgroundColor
+              .toList()
+              .map((e) => (e * (1 - opacity)).toInt())
+              .toList();
+
+          Tuple3<int, int, int> ndColor = Tuple3<int, int, int>.fromList([
+            for (int i in Iterable.generate(nColor.length))
+              (nColor[i] + newColor[i])
+          ]);
+          return ndColor;
         }
 
-        for (var i = 0; i < component.points.length; i++) {
-          if (c[i + idx] > 0) {
-            var p = points2D[i + idx];
+        // Draw Points
+        for (int i = 0; i < component.points.length; i++) {
+          if (personConfidence[i + idx] > 0) {
+            Tuple2<int, int> center =
+                Tuple2<int, int>.fromList(person[i + idx].take(2).toList());
+            Tuple3<int, int, int> colorTuple = _pointColor(i);
 
-            drawCircle(img,
-                x: p.item1,
-                y: p.item2,
-                radius: radius,
-                color: ColorFloat16.fromList(
-                    _pointColor(i).map((num n) => n.toDouble()).toList()));
+            drawCircle(
+              img,
+              x: center.item1,
+              y: center.item2,
+              radius: radius,
+              color: ColorFloat16.fromList([
+                colorTuple.item1,
+                colorTuple.item2,
+                colorTuple.item3
+              ].map((e) => (e.toDouble())).toList()),
+            );
           }
         }
 
         if (pose.header.isBbox) {
-          var point1 = points2D[0 + idx];
-          var point2 = points2D[1 + idx];
-          var color = Tuple3<int, int, int>(
-            (colors[0].r + colors[1].r) ~/ 2,
-            (colors[0].g + colors[1].g) ~/ 2,
-            (colors[0].b + colors[1].b) ~/ 2,
-          );
+          Tuple2<int, int> point1 = points2D[0 + idx];
+          Tuple2<int, int> point2 = points2D[1 + idx];
+
+          Tuple3<int, int, int> temp1 = _pointColor(0);
+          Tuple3<int, int, int> temp2 = _pointColor(1);
 
           drawRect(img,
               x1: point1.item1,
               y1: point1.item2,
               x2: point2.item1,
               y2: point2.item2,
-              color: ColorFloat16.rgb(color.item1, color.item2, color.item3),
-              thickness: t);
+              color: ColorFloat16.fromList(nd.mean([
+                [temp1.item1, temp1.item2, temp1.item3],
+                [temp2.item1, temp2.item2, temp2.item3]
+              ], axis: 0)),
+              thickness: thickness!);
         } else {
+          // Draw Limbs
           for (var limb in component.limbs) {
-            if (c[limb.x + idx] > 0 && c[limb.y + idx] > 0) {
+            if (personConfidence[limb.x + idx] > 0 &&
+                personConfidence[limb.y + idx] > 0) {
               Tuple2<int, int> point1 = points2D[limb.x + idx];
               Tuple2<int, int> point2 = points2D[limb.y + idx];
 
-              Tuple3<double, double, double> color =
-                  Tuple3<double, double, double>.fromList(nd.mean(
-                      [_pointColor(limb.x), _pointColor(limb.y)],
-                      axis: 0));
+              Tuple3<int, int, int> temp1 = _pointColor(limb.x);
+              Tuple3<int, int, int> temp2 = _pointColor(limb.y);
 
               drawLine(img,
                   x1: point1.item1,
                   y1: point1.item2,
                   x2: point2.item1,
                   y2: point2.item2,
-                  color:
-                      ColorFloat16.rgb(color.item1, color.item2, color.item3),
-                  thickness: t);
+                  color: ColorFloat16.fromList(nd.mean([
+                    [temp1.item1, temp1.item2, temp1.item3],
+                    [temp2.item1, temp2.item2, temp2.item3]
+                  ], axis: 0)),
+                  thickness: thickness!);
             }
           }
         }
@@ -106,16 +131,16 @@ class PoseVisualizer {
   }
 
   Iterable<Image> draw(
-      {List<int> backgroundColor = const [255, 255, 255],
-      int? maxFrames}) sync* {
-    var intFrames = MaskedArray(pose.body.data, []).round();
-    background = Image(
-        width: pose.header.dimensions.width,
-        height: pose.header.dimensions.height)
-      ..clear(ColorFloat16.rgb(
-          backgroundColor[0], backgroundColor[1], backgroundColor[2]));
+      {List<double> backgroundColor = const [0, 0, 0], int? maxFrames}) sync* {
+    List intFrames = MaskedArray(pose.body.data, []).round();
 
-    for (var i = 0;
+    background = Image(
+      width: pose.header.dimensions.width,
+      height: pose.header.dimensions.height,
+      backgroundColor: ColorFloat16.fromList(backgroundColor),
+    );
+
+    for (int i = 0;
         i < min(intFrames.length, maxFrames ?? intFrames.length);
         i++) {
       yield _drawFrame(MaskedArray(intFrames[i], []), pose.body.confidence[i],
@@ -123,10 +148,11 @@ class PoseVisualizer {
     }
   }
 
-  void saveGif(String fileName, Iterable<Image> frames, double poseFps) {
-    GifEncoder encoder = GifEncoder(delay: 0, repeat: 0);
-    int frameDuration = (100 / poseFps).round();
+  void saveGif(String fileName, {double fps = 24}) {
+    Iterable<Image> frames = draw();
+    int frameDuration = (100 / fps).round();
 
+    GifEncoder encoder = GifEncoder(delay: 0, repeat: 0);
     for (Image frame in frames) {
       encoder.addFrame(frame, duration: frameDuration);
     }
