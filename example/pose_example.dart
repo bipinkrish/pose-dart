@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:pose/pose.dart';
-import 'package:pose/src/pose_visualizer.dart';
 
 void main() {
   File file = File("pose_file.pose");

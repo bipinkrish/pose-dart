@@ -1,7 +1,7 @@
 // ignore_for_file: non_constant_identifier_names, no_leading_underscores_for_local_identifiers, prefer_typing_uninitialized_variables
 
 import 'package:pose/src/pose_header.dart';
-import 'package:pose/utils/reader.dart';
+import 'package:pose/reader.dart';
 import 'package:pose/numdart.dart';
 
 /// Class representing a pose body.

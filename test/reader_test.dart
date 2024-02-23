@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:test/test.dart';
-import 'package:pose/utils/reader.dart';
+import 'package:pose/reader.dart';
 import 'package:pose/numdart.dart';
 
 void main() {

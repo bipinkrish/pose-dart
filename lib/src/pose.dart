@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:pose/src/pose_header.dart';
 import 'package:pose/src/pose_body.dart';
-import 'package:pose/utils/reader.dart';
+import 'package:pose/reader.dart';
 
 /// Class representing a pose.
 ///

@@ -137,18 +137,6 @@ List<dynamic> ndarray(List<int> shape, Struct s, List<int> buffer, int offset) {
   return matrix;
 }
 
-/// Stacks arrays along a specified axis.
-List<List<dynamic>> stack(List<List<dynamic>> arrays, {int axis = 0}) {
-  if (axis == 0) {
-    return List.generate(arrays[0].length,
-        (index) => List.generate(arrays.length, (i) => arrays[i][index]));
-  } else if (axis == 1) {
-    return [arrays.expand((list) => list).toList()];
-  } else {
-    throw ArgumentError("Axis value must be either 0 or 1");
-  }
-}
-
 /// Computes the mean along a specified axis.
 List<double> mean(List<List<num>> values, {int? axis}) {
   if (values.isEmpty) {
@@ -174,11 +162,6 @@ List<double> mean(List<List<num>> values, {int? axis}) {
   } else {
     throw ArgumentError("Axis must be null, 0, or 1.");
   }
-}
-
-/// Constructs a multidimensional array filled with a specified value.
-List<List<dynamic>> full(List<int> shape, dynamic fillValue, {Type? dtype}) {
-  return List.generate(shape[0], (_) => List.filled(shape[1], fillValue));
 }
 
 /// Represents a masked array with data and mask.

@@ -18,3 +18,8 @@
 
 - Fix Visualization
 
+## 1.1.2
+
+- Removed Unused files
+- Re-structre
+

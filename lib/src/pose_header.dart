@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:pose/utils/reader.dart';
+import 'package:pose/reader.dart';
 import 'package:pose/numdart.dart';
 
 /// Class representing a component of a pose header.
