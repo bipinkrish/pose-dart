@@ -15,7 +15,7 @@ void main() {
     test("Mediapipe", () {
       Pose pose = getPose("test/data/mediapipe.pose");
       PoseVisualizer p = PoseVisualizer(pose);
-      p.saveGif("test.gif");
+      p.saveGif("test.gif", p.draw());
     });
   });
 }

@@ -14,6 +14,6 @@ void main() {
   PoseVisualizer p = PoseVisualizer(pose);
   print("File Visualized");
 
-  p.saveGif("demo.gif");
+  p.saveGif("demo.gif", p.draw());
   print("File Saved");
 }

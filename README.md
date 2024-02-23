@@ -23,7 +23,7 @@ At the core of the file format is `Header` and a `Body`.
 - ❌ Normalizing
 - ❌ Augmentation
 - ❌ Interpolation
-- ✔️ Visualization (2x slow compared to python)
+- ✔️ Visualization (2x slow compared to python and supports only GIF)
 
 ## Usage
 
@@ -37,8 +37,8 @@ void main() {
   Uint8List fileContent = file.readAsBytesSync();
   Pose pose = Pose.read(fileContent);
   PoseVisualizer p = PoseVisualizer(pose);
-  p.saveGif("demo.gif");
+  p.saveGif("demo.gif", p.draw());
 }
 ```
 
-![Demo Gif](./assets/demo.gif)
+![Demo Gif](https://raw.githubusercontent.com/bipinkrish/pose/master/assets/demo.gif)

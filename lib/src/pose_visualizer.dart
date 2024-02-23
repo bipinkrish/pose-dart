@@ -10,16 +10,17 @@ import 'package:pose/numdart.dart' show MaskedArray;
 import 'package:pose/src/pose_header.dart';
 import 'package:tuple/tuple.dart';
 
+/// Class responsible for visualizing poses.
 class PoseVisualizer {
-  Pose pose;
+  final Pose pose;
   int? thickness;
-  late double poseFps;
+  late double fps;
   Image? background;
 
-  PoseVisualizer(this.pose, {this.thickness}) {
-    poseFps = pose.body.fps;
-  }
+  /// Constructs a PoseVisualizer with the given pose and optional thickness.
+  PoseVisualizer(this.pose, {this.thickness}) : fps = pose.body.fps;
 
+  /// Draws a single frame of the pose on the given image.
   Image _drawFrame(MaskedArray frame, List frameConfidence, Image img) {
     Pixel pixelColor = img.getPixel(0, 0);
     Tuple3<int, int, int> backgroundColor = Tuple3<int, int, int>.fromList(
@@ -130,6 +131,7 @@ class PoseVisualizer {
     return img;
   }
 
+  /// Generates frames for the pose visualization.
   Iterable<Image> draw(
       {List<double> backgroundColor = const [0, 0, 0], int? maxFrames}) sync* {
     List intFrames = MaskedArray(pose.body.data, []).round();
@@ -148,11 +150,11 @@ class PoseVisualizer {
     }
   }
 
-  void saveGif(String fileName, {double fps = 24}) {
-    Iterable<Image> frames = draw();
+  /// Saves the visualization as a GIF.
+  void saveGif(String fileName, Iterable<Image> frames, {double fps = 24}) {
     int frameDuration = (100 / fps).round();
-
     GifEncoder encoder = GifEncoder(delay: 0, repeat: 0);
+
     for (Image frame in frames) {
       encoder.addFrame(frame, duration: frameDuration);
     }
@@ -162,6 +164,68 @@ class PoseVisualizer {
       File(fileName).writeAsBytesSync(image);
     } else {
       throw Exception('Failed to encode GIF.');
+    }
+  }
+}
+
+class FastAndUglyPoseVisualizer extends PoseVisualizer {
+  FastAndUglyPoseVisualizer(Pose pose, {int? thickness})
+      : super(pose, thickness: thickness);
+
+  Image _uglyDrawFrame(MaskedArray frame, Image img, int color) {
+    Tuple2<int, int> ignoredPoint = Tuple2<int, int>.fromList([0, 0]);
+
+    //  Note: this can be made faster by drawing polylines instead of lines
+    thickness = 1;
+
+    for (int i = 0; i < frame.data.length; i++) {
+      List person = frame.data[i];
+
+      List<Tuple2<int, int>> points2D = List<Tuple2<int, int>>.from(
+          person.map((p) => Tuple2<int, int>(p[0], p[1])));
+
+      int idx = 0;
+      for (PoseHeaderComponent component in pose.header.components) {
+        for (var limb in component.limbs) {
+          Tuple2<int, int> point1 = points2D[limb.x + idx];
+          Tuple2<int, int> point2 = points2D[limb.y + idx];
+
+          if (point1 != ignoredPoint && point2 != ignoredPoint) {
+            // Antialiasing is a bit slow, but necessary
+            drawLine(
+              img,
+              x1: point1.item1,
+              y1: point1.item2,
+              x2: point2.item1,
+              y2: point2.item2,
+              antialias: true,
+              color: ColorFloat16.fromList([color.toDouble()]),
+              thickness: thickness!,
+            );
+          }
+        }
+        idx += component.points.length;
+      }
+    }
+    return img;
+  }
+
+  Iterable<Image> uglyDraw(
+      {int backgroundColor = 0, int foregroundColor = 255}) sync* {
+    List intFrames = MaskedArray(pose.body.data, []).round();
+
+    background = Image(
+      width: pose.header.dimensions.width,
+      height: pose.header.dimensions.height,
+      backgroundColor: ColorFloat16.fromList([backgroundColor.toDouble()]),
+    );
+
+    for (int i = 0; i < intFrames.length; i++) {
+      yield _uglyDrawFrame(
+        MaskedArray(intFrames[i], []),
+        background!.clone(),
+        foregroundColor,
+      );
     }
   }
 }

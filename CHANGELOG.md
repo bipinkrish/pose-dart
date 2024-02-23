@@ -1,6 +1,6 @@
 ## 1.0.0
 
-- Loading Pose File
+- Can Load Pose File
 
 ## 1.0.1
 
@@ -8,9 +8,13 @@
 
 ## 1.0.2
 
-- More Tests
+- Add More Tests
 
 ## 1.1.0
 
-- Visualization
+- Add Visualization
+
+## 1.1.0
+
+- Fix Visualization
 
