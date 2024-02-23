@@ -1,8 +1,10 @@
 # Pose
 
-This is a `dart` implementation of its [python counterpart](https://github.com/sign-language-processing/pose/tree/master/src/python) with limited features
+[![pub package](https://img.shields.io/pub/v/pose.svg)](https://pub.dev/packages/pose)
 
-This repository helps developers interested in Sign Language Processing (SLP) by providing a complete toolkit for working with poses. It includes a file format with Python and Javascript readers and writers, which hopefully makes its usage simple.
+This is `dart` implementation of its [python counterpart](https://github.com/sign-language-processing/pose/tree/master/src/python) with limited features
+
+This repository helps developers interested in Sign Language Processing (SLP) by providing a complete toolkit for working with poses.
 
 ## File Format Structure
 
