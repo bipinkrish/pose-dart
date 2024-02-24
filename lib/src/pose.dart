@@ -7,8 +7,8 @@ import 'package:pose/reader.dart';
 ///
 /// This class contains a pose header and pose body.
 class Pose {
-  PoseHeader header;
-  PoseBody body;
+  final PoseHeader header;
+  final PoseBody body;
 
   /// Constructor for Pose.
   ///
@@ -20,9 +20,9 @@ class Pose {
   /// Takes [buffer] as a parameter.
   /// Returns a Pose instance.
   static Pose read(Uint8List buffer) {
-    BufferReader reader = BufferReader(buffer);
-    PoseHeader header = PoseHeader.read(reader);
-    PoseBody body = PoseBody.read(header, reader, {});
+    final BufferReader reader = BufferReader(buffer);
+    final PoseHeader header = PoseHeader.read(reader);
+    final PoseBody body = PoseBody.read(header, reader, {});
 
     return Pose(header, body);
   }

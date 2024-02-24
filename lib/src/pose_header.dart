@@ -26,17 +26,18 @@ class PoseHeaderComponent {
   /// Takes [version] and [reader] as parameters.
   /// Returns a PoseHeaderComponent instance.
   static PoseHeaderComponent read(double version, BufferReader reader) {
-    String name = reader.unpackStr();
-    String pointFormat = reader.unpackStr();
-    int pointsCount = reader.unpack(ConstStructs.ushort);
-    int limbsCount = reader.unpack(ConstStructs.ushort);
-    int colorsCount = reader.unpack(ConstStructs.ushort);
-    List<String> points = List.generate(pointsCount, (_) => reader.unpackStr());
-    List<Point<int>> limbs = List.generate(
+    final String name = reader.unpackStr();
+    final String pointFormat = reader.unpackStr();
+    final int pointsCount = reader.unpack(ConstStructs.ushort);
+    final int limbsCount = reader.unpack(ConstStructs.ushort);
+    final int colorsCount = reader.unpack(ConstStructs.ushort);
+    final List<String> points =
+        List.generate(pointsCount, (_) => reader.unpackStr());
+    final List<Point<int>> limbs = List.generate(
         limbsCount,
         (_) => Point<int>(reader.unpack(ConstStructs.ushort),
             reader.unpack(ConstStructs.ushort)));
-    List<List<dynamic>> colors = List.generate(
+    final List<List<dynamic>> colors = List.generate(
       colorsCount,
       (_) => [
         reader.unpack(ConstStructs.ushort),
@@ -52,7 +53,7 @@ class PoseHeaderComponent {
   ///
   /// Returns a list of relative limbs.
   List<int?> getRelativeLimbs() {
-    Map<int, int> limbsMap = {};
+    final Map<int, int> limbsMap = {};
     for (int i = 0; i < limbs.length; i++) {
       limbsMap[limbs[i].y] = i;
     }
@@ -78,9 +79,9 @@ class PoseHeaderDimensions {
   /// Takes [version] and [reader] as parameters.
   /// Returns a PoseHeaderDimensions instance.
   static PoseHeaderDimensions read(double version, BufferReader reader) {
-    int width = reader.unpack(ConstStructs.ushort);
-    int height = reader.unpack(ConstStructs.ushort);
-    int depth = reader.unpack(ConstStructs.ushort);
+    final int width = reader.unpack(ConstStructs.ushort);
+    final int height = reader.unpack(ConstStructs.ushort);
+    final int depth = reader.unpack(ConstStructs.ushort);
 
     return PoseHeaderDimensions(width, height, depth);
   }
@@ -106,11 +107,11 @@ class PoseHeader {
   /// Takes [reader] as a parameter.
   /// Returns a PoseHeader instance.
   static PoseHeader read(BufferReader reader) {
-    double version = reader.unpack(ConstStructs.float);
-    PoseHeaderDimensions dimensions =
+    final double version = reader.unpack(ConstStructs.float);
+    final PoseHeaderDimensions dimensions =
         PoseHeaderDimensions.read(version, reader);
-    int componentsCount = reader.unpack(ConstStructs.ushort);
-    List<PoseHeaderComponent> components = List.generate(
+    final int componentsCount = reader.unpack(ConstStructs.ushort);
+    final List<PoseHeaderComponent> components = List.generate(
         componentsCount, (_) => PoseHeaderComponent.read(version, reader));
 
     return PoseHeader(version, dimensions, components);

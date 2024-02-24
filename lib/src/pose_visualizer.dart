@@ -22,39 +22,39 @@ class PoseVisualizer {
 
   /// Draws a single frame of the pose on the given image.
   Image _drawFrame(MaskedArray frame, List frameConfidence, Image img) {
-    Pixel pixelColor = img.getPixel(0, 0);
-    Tuple3<int, int, int> backgroundColor = Tuple3<int, int, int>.fromList(
+    final Pixel pixelColor = img.getPixel(0, 0);
+    final Tuple3<int, int, int> backgroundColor = Tuple3<int, int, int>.fromList(
         [pixelColor.r, pixelColor.g, pixelColor.b]);
 
     thickness ??= (sqrt(img.width * img.height) / 150).round();
-    int radius = (thickness! / 2).round();
+    final int radius = (thickness! / 2).round();
 
     for (int i = 0; i < frame.data.length; i++) {
-      List person = frame.data[i];
-      var personConfidence = frameConfidence[i];
+      final List person = frame.data[i];
+      final List personConfidence = frameConfidence[i];
 
-      List<Tuple2<int, int>> points2D = List<Tuple2<int, int>>.from(
+      final List<Tuple2<int, int>> points2D = List<Tuple2<int, int>>.from(
           person.map((p) => Tuple2<int, int>(p[0], p[1])));
 
       int idx = 0;
       for (PoseHeaderComponent component in pose.header.components) {
-        List<Tuple3<int, int, int>> colors = [
-          for (var c in component.colors)
+        final List<Tuple3<int, int, int>> colors = [
+          for (List c in component.colors)
             Tuple3<int, int, int>.fromList(c) // can be reversed
         ];
 
         Tuple3<int, int, int> _pointColor(int pI) {
-          double opacity = personConfidence[pI + idx];
-          List nColor = colors[pI % component.colors.length]
+          final double opacity = personConfidence[pI + idx];
+          final List nColor = colors[pI % component.colors.length]
               .toList()
               .map((e) => (e * opacity).toInt())
               .toList();
-          List newColor = backgroundColor
+          final List newColor = backgroundColor
               .toList()
               .map((e) => (e * (1 - opacity)).toInt())
               .toList();
 
-          Tuple3<int, int, int> ndColor = Tuple3<int, int, int>.fromList([
+          final Tuple3<int, int, int> ndColor = Tuple3<int, int, int>.fromList([
             for (int i in Iterable.generate(nColor.length))
               (nColor[i] + newColor[i])
           ]);
@@ -64,9 +64,9 @@ class PoseVisualizer {
         // Draw Points
         for (int i = 0; i < component.points.length; i++) {
           if (personConfidence[i + idx] > 0) {
-            Tuple2<int, int> center =
+            final Tuple2<int, int> center =
                 Tuple2<int, int>.fromList(person[i + idx].take(2).toList());
-            Tuple3<int, int, int> colorTuple = _pointColor(i);
+            final Tuple3<int, int, int> colorTuple = _pointColor(i);
 
             drawCircle(
               img,
@@ -83,11 +83,11 @@ class PoseVisualizer {
         }
 
         if (pose.header.isBbox) {
-          Tuple2<int, int> point1 = points2D[0 + idx];
-          Tuple2<int, int> point2 = points2D[1 + idx];
+          final Tuple2<int, int> point1 = points2D[0 + idx];
+          final Tuple2<int, int> point2 = points2D[1 + idx];
 
-          Tuple3<int, int, int> temp1 = _pointColor(0);
-          Tuple3<int, int, int> temp2 = _pointColor(1);
+          final Tuple3<int, int, int> temp1 = _pointColor(0);
+          final Tuple3<int, int, int> temp2 = _pointColor(1);
 
           drawRect(img,
               x1: point1.item1,
@@ -104,11 +104,11 @@ class PoseVisualizer {
           for (var limb in component.limbs) {
             if (personConfidence[limb.x + idx] > 0 &&
                 personConfidence[limb.y + idx] > 0) {
-              Tuple2<int, int> point1 = points2D[limb.x + idx];
-              Tuple2<int, int> point2 = points2D[limb.y + idx];
+              final Tuple2<int, int> point1 = points2D[limb.x + idx];
+              final Tuple2<int, int> point2 = points2D[limb.y + idx];
 
-              Tuple3<int, int, int> temp1 = _pointColor(limb.x);
-              Tuple3<int, int, int> temp2 = _pointColor(limb.y);
+              final Tuple3<int, int, int> temp1 = _pointColor(limb.x);
+              final Tuple3<int, int, int> temp2 = _pointColor(limb.y);
 
               drawLine(img,
                   x1: point1.item1,
@@ -134,9 +134,9 @@ class PoseVisualizer {
   /// Generates frames for the pose visualization.
   Iterable<Image> draw(
       {List<double> backgroundColor = const [0, 0, 0], int? maxFrames}) sync* {
-    List intFrames = MaskedArray(pose.body.data, []).round();
+    final List intFrames = MaskedArray(pose.body.data, []).round();
 
-    background = Image(
+    final background = Image(
       width: pose.header.dimensions.width,
       height: pose.header.dimensions.height,
       backgroundColor: ColorFloat16.fromList(backgroundColor),
@@ -146,19 +146,19 @@ class PoseVisualizer {
         i < min(intFrames.length, maxFrames ?? intFrames.length);
         i++) {
       yield _drawFrame(MaskedArray(intFrames[i], []), pose.body.confidence[i],
-          background!.clone());
+          background.clone());
     }
   }
 
   /// Saves the visualization as a GIF.
   void saveGif(String fileName, Iterable<Image> frames, {double fps = 24}) {
-    int frameDuration = (100 / fps).round();
-    GifEncoder encoder = GifEncoder(delay: 0, repeat: 0);
+    final int frameDuration = (100 / fps).round();
+    final GifEncoder encoder = GifEncoder(delay: 0, repeat: 0);
 
     for (Image frame in frames) {
       encoder.addFrame(frame, duration: frameDuration);
     }
-    Uint8List? image = encoder.finish();
+    final Uint8List? image = encoder.finish();
 
     if (image != null) {
       File(fileName).writeAsBytesSync(image);
@@ -173,22 +173,22 @@ class FastAndUglyPoseVisualizer extends PoseVisualizer {
       : super(pose, thickness: thickness);
 
   Image _uglyDrawFrame(MaskedArray frame, Image img, int color) {
-    Tuple2<int, int> ignoredPoint = Tuple2<int, int>.fromList([0, 0]);
+    final Tuple2<int, int> ignoredPoint = Tuple2<int, int>.fromList([0, 0]);
 
     //  Note: this can be made faster by drawing polylines instead of lines
-    thickness = 1;
+    final thickness = 1;
 
     for (int i = 0; i < frame.data.length; i++) {
-      List person = frame.data[i];
+      final List person = frame.data[i];
 
-      List<Tuple2<int, int>> points2D = List<Tuple2<int, int>>.from(
+      final List<Tuple2<int, int>> points2D = List<Tuple2<int, int>>.from(
           person.map((p) => Tuple2<int, int>(p[0], p[1])));
 
       int idx = 0;
       for (PoseHeaderComponent component in pose.header.components) {
         for (var limb in component.limbs) {
-          Tuple2<int, int> point1 = points2D[limb.x + idx];
-          Tuple2<int, int> point2 = points2D[limb.y + idx];
+          final Tuple2<int, int> point1 = points2D[limb.x + idx];
+          final Tuple2<int, int> point2 = points2D[limb.y + idx];
 
           if (point1 != ignoredPoint && point2 != ignoredPoint) {
             // Antialiasing is a bit slow, but necessary
@@ -200,7 +200,7 @@ class FastAndUglyPoseVisualizer extends PoseVisualizer {
               y2: point2.item2,
               antialias: true,
               color: ColorFloat16.fromList([color.toDouble()]),
-              thickness: thickness!,
+              thickness: thickness,
             );
           }
         }
@@ -212,9 +212,9 @@ class FastAndUglyPoseVisualizer extends PoseVisualizer {
 
   Iterable<Image> uglyDraw(
       {int backgroundColor = 0, int foregroundColor = 255}) sync* {
-    List intFrames = MaskedArray(pose.body.data, []).round();
+    final List intFrames = MaskedArray(pose.body.data, []).round();
 
-    background = Image(
+    final background = Image(
       width: pose.header.dimensions.width,
       height: pose.header.dimensions.height,
       backgroundColor: ColorFloat16.fromList([backgroundColor.toDouble()]),
@@ -223,7 +223,7 @@ class FastAndUglyPoseVisualizer extends PoseVisualizer {
     for (int i = 0; i < intFrames.length; i++) {
       yield _uglyDrawFrame(
         MaskedArray(intFrames[i], []),
-        background!.clone(),
+        background.clone(),
         foregroundColor,
       );
     }

@@ -35,22 +35,22 @@ class PoseBody {
   /// Returns the read data.
   static dynamic read_v0_1(
       PoseHeader header, BufferReader reader, Map<String, dynamic> kwargs) {
-    List<dynamic> lst = reader.unpack(ConstStructs.double_ushort);
-    int _people = reader.unpack(ConstStructs.ushort);
-    int fps = lst[0];
+    final List<dynamic> lst = reader.unpack(ConstStructs.double_ushort);
+    final int _people = reader.unpack(ConstStructs.ushort);
+    final int fps = lst[0];
     int _frames = lst[1];
 
-    int _points =
+    final int _points =
         header.components.map((c) => c.points.length).reduce((a, b) => a + b);
-    int _dims = header.components
+    final int _dims = header.components
             .map((c) => c.format.length)
             .reduce((a, b) => a > b ? a : b) -
         1;
     _frames = reader.bytesLeft() ~/ (_people * _points * (_dims + 1) * 4);
 
-    List data = read_v0_1_frames(_frames, [_people, _points, _dims], reader,
+    final List data = read_v0_1_frames(_frames, [_people, _points, _dims], reader,
         kwargs['startFrame'], kwargs['endFrame']);
-    List confidence = read_v0_1_frames(_frames, [_people, _points], reader,
+    final List confidence = read_v0_1_frames(_frames, [_people, _points], reader,
         kwargs['startFrame'], kwargs['endFrame']);
 
     return PoseBody(fps.toDouble(), data, confidence);
@@ -62,9 +62,9 @@ class PoseBody {
   /// Returns the read data.
   static dynamic read_v0_1_frames(int frames, List<int> shape,
       BufferReader reader, int? startFrame, int? endFrame) {
-    Struct s = ConstStructs.float;
-
+    final Struct s = ConstStructs.float;
     int _frames = frames;
+    
     if (startFrame != null && startFrame > 0) {
       if (startFrame >= frames) {
         throw ArgumentError("Start frame is greater than the number of frames");
@@ -80,8 +80,7 @@ class PoseBody {
       _frames -= removeFrames;
     }
 
-    List tensor = reader.unpackNum(ConstStructs.float, [_frames, ...shape]);
-
+    final List tensor = reader.unpackNum(ConstStructs.float, [_frames, ...shape]);
     if (removeFrames != 0) {
       reader.advance(s, (removeFrames * shape.reduce((a, b) => a * b)));
     }

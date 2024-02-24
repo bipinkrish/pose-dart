@@ -5,19 +5,19 @@ import 'dart:typed_data';
 
 /// Represents a structure with a specified format and size.
 class Struct {
-  String format;
-  int size;
+  final String format;
+  final int size;
 
   Struct(this.format, this.size);
 }
 
 /// Contains predefined Struct objects for commonly used data types.
 class ConstStructs {
-  static Struct float = Struct("<f", 4);
-  static Struct short = Struct("<h", 2);
-  static Struct ushort = Struct("<H", 2);
-  static Struct double_ushort = Struct("<HH", 4);
-  static Struct triple_ushort = Struct("<HHH", 6);
+  static final Struct float = Struct("<f", 4);
+  static final Struct short = Struct("<h", 2);
+  static final Struct ushort = Struct("<H", 2);
+  static final Struct double_ushort = Struct("<HH", 4);
+  static final Struct triple_ushort = Struct("<HHH", 6);
 }
 
 /// Converts bytes to a floating-point number.
@@ -26,17 +26,17 @@ double bytesToFloat(List<int> bytesData) {
   for (int i = 0; i < bytesData.length; i++) {
     intValue += bytesData[i] << (i * 8);
   }
-  int sign = (intValue & (1 << (8 * bytesData.length - 1))) != 0 ? -1 : 1;
-  int exponent = ((intValue >> 23) & 0xFF) - 127;
-  int mantissa = (intValue & 0x7FFFFF) | 0x800000;
-  num result = sign * mantissa * math.pow(2, exponent - 23);
+  final int sign = (intValue & (1 << (8 * bytesData.length - 1))) != 0 ? -1 : 1;
+  final int exponent = ((intValue >> 23) & 0xFF) - 127;
+  final int mantissa = (intValue & 0x7FFFFF) | 0x800000;
+  final num result = sign * mantissa * math.pow(2, exponent - 23);
   return result.toDouble();
 }
 
 /// Converts bytes to an integer.
 int bytesToInt(List<int> bytesData,
     {bool signed = false, Endian byteOrder = Endian.little}) {
-  ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytesData));
+  final ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytesData));
   if (signed) {
     switch (bytesData.length) {
       case 1:
@@ -89,7 +89,7 @@ List<dynamic> ndarray(List<int> shape, Struct s, List<int> buffer, int offset) {
     throw ArgumentError("Format should be <H or <f");
   }
 
-  List<dynamic> matrix = [];
+  final List<dynamic> matrix = [];
 
   if (shape.length == 2) {
     for (int i = 0; i < shape[0]; i++) {
@@ -144,11 +144,11 @@ List<double> mean(List<List<num>> values, {int? axis}) {
   }
 
   if (axis == null) {
-    List<num> flattenedValues = values.expand((list) => list).toList();
-    num total = flattenedValues.reduce((a, b) => a + b);
+    final List<num> flattenedValues = values.expand((list) => list).toList();
+    final num total = flattenedValues.reduce((a, b) => a + b);
     return [total / flattenedValues.length];
   } else if (axis == 0) {
-    List<num> columnSums = List<num>.filled(values[0].length, 0);
+    final List<num> columnSums = List<num>.filled(values[0].length, 0);
     for (List<num> row in values) {
       for (int i = 0; i < row.length; i++) {
         columnSums[i] += row[i];
@@ -166,14 +166,14 @@ List<double> mean(List<List<num>> values, {int? axis}) {
 
 /// Represents a masked array with data and mask.
 class MaskedArray {
-  List data;
-  List<List<int>> mask;
+  final List data;
+  final List<List<int>> mask;
 
   MaskedArray(this.data, this.mask);
 
   /// Rounds the data values in the masked array.
   MaskedArray rint() {
-    List<List<dynamic>> roundedData = [];
+    final List<List<dynamic>> roundedData = [];
     for (int i = 0; i < data.length; i++) {
       List<dynamic> row = [];
       for (int j = 0; j < data[i].length; j++) {

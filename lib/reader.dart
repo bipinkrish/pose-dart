@@ -5,7 +5,7 @@ import 'package:pose/numdart.dart' as nd;
 
 /// Class for reading data from a byte buffer.
 class BufferReader {
-  Uint8List buffer;
+  final Uint8List buffer;
   int readOffset;
 
   /// Constructs a BufferReader with the given byte buffer.
@@ -18,25 +18,25 @@ class BufferReader {
 
   /// Reads a fixed-size chunk of bytes from the buffer.
   Uint8List unpackF(int size) {
-    Uint8List data = buffer.sublist(readOffset, readOffset + size);
-    advance(Struct("<>", size));
+    final Uint8List data = buffer.sublist(readOffset, readOffset + size);
+    advance(Struct("", size));
     return data;
   }
 
   /// Reads numeric data from the buffer and constructs an n-dimensional array.
   List<dynamic> unpackNum(Struct s, List<int> shape) {
-    List<dynamic> arr = nd.ndarray(shape, s, buffer, readOffset);
-    int arrayBufferSize = nd.prod(shape);
+    final List<dynamic> arr = nd.ndarray(shape, s, buffer, readOffset);
+    final int arrayBufferSize = nd.prod(shape);
     advance(s, arrayBufferSize);
     return arr;
   }
 
   /// Unpacks a single value from the buffer based on the given format.
   dynamic unpack(Struct s) {
-    Uint8List data = buffer.sublist(readOffset, readOffset + s.size);
+    final Uint8List data = buffer.sublist(readOffset, readOffset + s.size);
     advance(s);
 
-    List<dynamic> result = [];
+    final List<dynamic> result = [];
 
     if (s.format == "<f") {
       result.add(nd.bytesToFloat(data));
@@ -63,8 +63,8 @@ class BufferReader {
 
   /// Unpacks a string from the buffer.
   String unpackStr() {
-    int length = unpack(ConstStructs.ushort);
-    Uint8List bytes_ = unpackF(length);
+    final int length = unpack(ConstStructs.ushort);
+    final Uint8List bytes_ = unpackF(length);
     return utf8.decode(bytes_);
   }
 }
