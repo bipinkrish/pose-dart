@@ -23,3 +23,7 @@
 - Removed Unused files
 - Re-structre
 
+## 1.1.3
+
+- Optimizations
+

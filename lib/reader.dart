@@ -36,7 +36,7 @@ class BufferReader {
     final Uint8List data = buffer.sublist(readOffset, readOffset + s.size);
     advance(s);
 
-    final List<dynamic> result = [];
+    final List<num> result = [];
 
     if (s.format == "<f") {
       result.add(nd.bytesToFloat(data));
