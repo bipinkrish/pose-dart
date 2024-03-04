@@ -23,8 +23,9 @@ class PoseVisualizer {
   /// Draws a single frame of the pose on the given image.
   Image _drawFrame(MaskedArray frame, List frameConfidence, Image img) {
     final Pixel pixelColor = img.getPixel(0, 0);
-    final Tuple3<int, int, int> backgroundColor = Tuple3<int, int, int>.fromList(
-        [pixelColor.r, pixelColor.g, pixelColor.b]);
+    final Tuple3<int, int, int> backgroundColor =
+        Tuple3<int, int, int>.fromList(
+            [pixelColor.r, pixelColor.g, pixelColor.b]);
 
     thickness ??= (sqrt(img.width * img.height) / 150).round();
     final int radius = (thickness! / 2).round();
@@ -150,21 +151,27 @@ class PoseVisualizer {
     }
   }
 
-  /// Saves the visualization as a GIF.
-  void saveGif(String fileName, Iterable<Image> frames, {double fps = 24}) {
+  // Generate GIF from frames
+  Uint8List generateGif(Iterable<Image> frames, {double fps = 24}) {
     final int frameDuration = (100 / fps).round();
     final GifEncoder encoder = GifEncoder(delay: 0, repeat: 0);
 
     for (Image frame in frames) {
       encoder.addFrame(frame, duration: frameDuration);
     }
-    final Uint8List? image = encoder.finish();
 
+    final Uint8List? image = encoder.finish();
     if (image != null) {
-      File(fileName).writeAsBytesSync(image);
-    } else {
-      throw Exception('Failed to encode GIF.');
+      return image;
     }
+
+    throw Exception('Failed to encode GIF.');
+  }
+
+  /// Saves the visualization as a GIF.
+  void saveGif(String fileName, Iterable<Image> frames, {double fps = 24}) {
+    Uint8List image = generateGif(frames, fps: fps);
+    File(fileName).writeAsBytesSync(image);
   }
 }
 
