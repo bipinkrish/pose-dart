@@ -27,3 +27,7 @@
 
 - Optimizations
 
+## 1.1.4
+
+- Method Divide
+
