@@ -31,3 +31,7 @@
 
 - Method Divide
 
+## 1.1.5
+
+- Async Tasks
+

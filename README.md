@@ -34,12 +34,12 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:pose/pose.dart';
 
-void main() {
+void main() async {
   File file = File("pose_file.pose");
   Uint8List fileContent = file.readAsBytesSync();
   Pose pose = Pose.read(fileContent);
   PoseVisualizer p = PoseVisualizer(pose);
-  p.saveGif("demo.gif", p.draw());
+  await p.saveGif("demo.gif", p.draw());
 }
 ```
 

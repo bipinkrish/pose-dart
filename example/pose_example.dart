@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:pose/pose.dart';
 
-void main() {
+void main() async {
   Stopwatch stopwatch = Stopwatch()..start();
 
   File file = File("pose_file.pose");
@@ -15,8 +15,8 @@ void main() {
   PoseVisualizer p = PoseVisualizer(pose, thickness: 2);
   print("File Visualized");
 
-  p.saveGif("demo.gif", p.draw());
-  print("File Saved");
+  File giffile = await p.saveGif("demo.gif", p.draw());
+  print("File Saved ${giffile.path}");
 
   print('Time taken : ${stopwatch.elapsed}');
 }

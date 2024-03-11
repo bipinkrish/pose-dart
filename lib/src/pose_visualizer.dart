@@ -133,8 +133,8 @@ class PoseVisualizer {
   }
 
   /// Generates frames for the pose visualization.
-  Iterable<Image> draw(
-      {List<double> backgroundColor = const [0, 0, 0], int? maxFrames}) sync* {
+  Stream<Image> draw(
+      {List<double> backgroundColor = const [0, 0, 0], int? maxFrames}) async* {
     final List intFrames = MaskedArray(pose.body.data, []).round();
 
     final background = Image(
@@ -152,11 +152,11 @@ class PoseVisualizer {
   }
 
   // Generate GIF from frames
-  Uint8List generateGif(Iterable<Image> frames, {double fps = 24}) {
+  Future<Uint8List> generateGif(Stream<Image> frames, {double fps = 24}) async {
     final int frameDuration = (100 / fps).round();
     final GifEncoder encoder = GifEncoder(delay: 0, repeat: 0);
 
-    for (Image frame in frames) {
+    await for (Image frame in frames) {
       encoder.addFrame(frame, duration: frameDuration);
     }
 
@@ -169,9 +169,10 @@ class PoseVisualizer {
   }
 
   /// Saves the visualization as a GIF.
-  void saveGif(String fileName, Iterable<Image> frames, {double fps = 24}) {
-    Uint8List image = generateGif(frames, fps: fps);
-    File(fileName).writeAsBytesSync(image);
+  Future<File> saveGif(String fileName, Stream<Image> frames,
+      {double fps = 24}) async {
+    Uint8List image = await generateGif(frames, fps: fps);
+    return await File(fileName).writeAsBytes(image);
   }
 }
 
@@ -217,8 +218,8 @@ class FastAndUglyPoseVisualizer extends PoseVisualizer {
     return img;
   }
 
-  Iterable<Image> uglyDraw(
-      {int backgroundColor = 0, int foregroundColor = 255}) sync* {
+  Stream<Image> uglyDraw(
+      {int backgroundColor = 0, int foregroundColor = 255}) async* {
     final List intFrames = MaskedArray(pose.body.data, []).round();
 
     final background = Image(
