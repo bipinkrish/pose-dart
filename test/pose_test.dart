@@ -100,5 +100,11 @@ void main() {
       expect(pose.body.fps, equals(24.0));
       expect(pose.header.version, equals(0.10000000149011612));
     });
+    test("v0.2 file test", () {
+      Pose pose = getPose("test/data/four-v0.2.pose");
+
+      expect(pose.body.fps, equals(30.0));
+      expect(pose.header.version, equals(0.20000000298023224));
+    });
   });
 }
