@@ -39,3 +39,7 @@
 
 - Support v0.2 files
 
+## 1.1.7
+
+- Support background color
+

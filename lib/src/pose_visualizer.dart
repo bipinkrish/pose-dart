@@ -15,7 +15,6 @@ class PoseVisualizer {
   final Pose pose;
   int? thickness;
   late double fps;
-  Image? background;
 
   /// Constructs a PoseVisualizer with the given pose and optional thickness.
   PoseVisualizer(this.pose, {this.thickness}) : fps = pose.body.fps;
@@ -134,14 +133,23 @@ class PoseVisualizer {
 
   /// Generates frames for the pose visualization.
   Stream<Image> draw(
-      {List<double> backgroundColor = const [0, 0, 0], int? maxFrames}) async* {
+      {List<int> backgroundColor = const [0, 0, 0, 0], int? maxFrames}) async* {
     final List intFrames = MaskedArray(pose.body.data, []).round();
-
     final background = Image(
       width: pose.header.dimensions.width,
       height: pose.header.dimensions.height,
-      backgroundColor: ColorFloat16.fromList(backgroundColor),
     );
+    if (backgroundColor != [0, 0, 0, 0]) {
+      fill(
+        background,
+        color: ColorRgba8(
+          backgroundColor[0],
+          backgroundColor[1],
+          backgroundColor[2],
+          backgroundColor[3],
+        ),
+      );
+    }
 
     for (int i = 0;
         i < min(intFrames.length, maxFrames ?? intFrames.length);

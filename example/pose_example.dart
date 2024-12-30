@@ -15,8 +15,8 @@ void main() async {
   PoseVisualizer p = PoseVisualizer(pose, thickness: 2);
   print("File Visualized");
 
-  File giffile = await p.saveGif("demo.gif", p.draw());
-  print("File Saved ${giffile.path}");
+  File gifFile = await p.saveGif("demo.gif", p.draw());
+  print("File Saved ${gifFile.path}");
 
   print('Time taken : ${stopwatch.elapsed.inMilliseconds} milli-seconds');
 }

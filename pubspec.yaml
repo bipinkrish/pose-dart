@@ -1,6 +1,6 @@
 name: pose
 description: Dart library for loading, viewing, augmenting, and handling .pose files
-version: 1.1.6
+version: 1.1.7
 repository: https://github.com/bipinkrish/pose-dart
 topics:
   - pose
@@ -9,9 +9,9 @@ environment:
   sdk: ^3.0.0
 
 dependencies:
-  image: ^4.1.7
+  image: ^4.5.2
   tuple: ^2.0.2
 
 dev_dependencies:
-  lints: ^2.0.0
+  lints: ^5.0.0
   test: ^1.21.0
