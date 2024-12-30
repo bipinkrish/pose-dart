@@ -29,6 +29,20 @@ class PoseVisualizer {
     thickness ??= (sqrt(img.width * img.height) / 150).round();
     final int radius = (thickness! / 2).round();
 
+    Tuple3<int, int, int> _computeBlendedColor(
+        double opacity,
+        Tuple3<int, int, int> baseColor,
+        Tuple3<int, int, int> backgroundColor) {
+      return Tuple3(
+        (baseColor.item1 * opacity + backgroundColor.item1 * (1 - opacity))
+            .toInt(),
+        (baseColor.item2 * opacity + backgroundColor.item2 * (1 - opacity))
+            .toInt(),
+        (baseColor.item3 * opacity + backgroundColor.item3 * (1 - opacity))
+            .toInt(),
+      );
+    }
+
     for (int i = 0; i < frame.data.length; i++) {
       final List person = frame.data[i];
       final List personConfidence = frameConfidence[i];
@@ -39,34 +53,22 @@ class PoseVisualizer {
       int idx = 0;
       for (PoseHeaderComponent component in pose.header.components) {
         final List<Tuple3<int, int, int>> colors = [
-          for (List c in component.colors)
-            Tuple3<int, int, int>.fromList(c) // can be reversed
+          for (List c in component.colors) Tuple3<int, int, int>.fromList(c)
         ];
 
-        Tuple3<int, int, int> _pointColor(int pI) {
-          final double opacity = personConfidence[pI + idx];
-          final List nColor = colors[pI % component.colors.length]
-              .toList()
-              .map((e) => (e * opacity).toInt())
-              .toList();
-          final List newColor = backgroundColor
-              .toList()
-              .map((e) => (e * (1 - opacity)).toInt())
-              .toList();
-
-          final Tuple3<int, int, int> ndColor = Tuple3<int, int, int>.fromList([
-            for (int i in Iterable.generate(nColor.length))
-              (nColor[i] + newColor[i])
-          ]);
-          return ndColor;
-        }
+        // Precompute colors for each point
+        final List<Tuple3<int, int, int>> precomputedColors = [
+          for (int j = 0; j < component.points.length; j++)
+            _computeBlendedColor(personConfidence[j + idx],
+                colors[j % colors.length], backgroundColor)
+        ];
 
         // Draw Points
         for (int i = 0; i < component.points.length; i++) {
           if (personConfidence[i + idx] > 0) {
             final Tuple2<int, int> center =
                 Tuple2<int, int>.fromList(person[i + idx].take(2).toList());
-            final Tuple3<int, int, int> colorTuple = _pointColor(i);
+            final Tuple3<int, int, int> colorTuple = precomputedColors[i];
 
             drawCircle(
               img,
@@ -86,8 +88,8 @@ class PoseVisualizer {
           final Tuple2<int, int> point1 = points2D[0 + idx];
           final Tuple2<int, int> point2 = points2D[1 + idx];
 
-          final Tuple3<int, int, int> temp1 = _pointColor(0);
-          final Tuple3<int, int, int> temp2 = _pointColor(1);
+          final Tuple3<int, int, int> temp1 = precomputedColors[0];
+          final Tuple3<int, int, int> temp2 = precomputedColors[1];
 
           drawRect(img,
               x1: point1.item1,
@@ -107,8 +109,8 @@ class PoseVisualizer {
               final Tuple2<int, int> point1 = points2D[limb.x + idx];
               final Tuple2<int, int> point2 = points2D[limb.y + idx];
 
-              final Tuple3<int, int, int> temp1 = _pointColor(limb.x);
-              final Tuple3<int, int, int> temp2 = _pointColor(limb.y);
+              final Tuple3<int, int, int> temp1 = precomputedColors[limb.x];
+              final Tuple3<int, int, int> temp2 = precomputedColors[limb.y];
 
               drawLine(img,
                   x1: point1.item1,
@@ -135,6 +137,8 @@ class PoseVisualizer {
   Stream<Image> draw(
       {List<int> backgroundColor = const [0, 0, 0, 0], int? maxFrames}) async* {
     final List intFrames = MaskedArray(pose.body.data, []).round();
+    final int totalFrames =
+        min(intFrames.length, maxFrames ?? intFrames.length);
     final background = Image(
       width: pose.header.dimensions.width,
       height: pose.header.dimensions.height,
@@ -151,9 +155,7 @@ class PoseVisualizer {
       );
     }
 
-    for (int i = 0;
-        i < min(intFrames.length, maxFrames ?? intFrames.length);
-        i++) {
+    for (int i = 0; i < totalFrames; i++) {
       yield _drawFrame(MaskedArray(intFrames[i], []), pose.body.confidence[i],
           background.clone());
     }

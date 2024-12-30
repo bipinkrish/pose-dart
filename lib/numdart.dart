@@ -200,11 +200,7 @@ class MaskedArray {
     }
   }
 
-  List _roundList(List<dynamic> elem) {
-    List<dynamic> roundedList = [];
-    for (int i = 0; i < elem.length; i++) {
-      roundedList.add(_round(elem[i]));
-    }
-    return roundedList;
+  List<dynamic> _roundList(List<dynamic> elements) {
+    return elements.map((e) => e is List ? _roundList(e) : e.round()).toList();
   }
 }
