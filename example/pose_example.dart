@@ -18,5 +18,5 @@ void main() async {
   File giffile = await p.saveGif("demo.gif", p.draw());
   print("File Saved ${giffile.path}");
 
-  print('Time taken : ${stopwatch.elapsed}');
+  print('Time taken : ${stopwatch.elapsed.inMilliseconds} milli-seconds');
 }

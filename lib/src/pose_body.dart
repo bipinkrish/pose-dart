@@ -22,23 +22,31 @@ class PoseBody {
   /// Returns a PoseBody instance.
   static PoseBody read(
       PoseHeader header, BufferReader reader, Map<String, dynamic> kwargs) {
-    if ((header.version * 1000).round() == 100) {
-      return read_v0_1(header, reader, kwargs);
+    final int version_hundred = (header.version * 1000).round();
+    if (version_hundred == 100 || version_hundred == 200) {
+      return read_v0_1(header, reader, version_hundred, kwargs);
     }
 
     throw UnimplementedError("Unknown version - ${header.version}");
   }
 
-  /// Reads pose body data for version 0.1.
+  /// Reads pose body data for version 0.1 and 0.2.
   ///
-  /// Takes [header], [reader], and [kwargs] as parameters.
+  /// Takes [header], [reader], [version], and [kwargs] as parameters.
   /// Returns the read data.
-  static dynamic read_v0_1(
-      PoseHeader header, BufferReader reader, Map<String, dynamic> kwargs) {
-    final List<dynamic> lst = reader.unpack(ConstStructs.double_ushort);
+  static dynamic read_v0_1(PoseHeader header, BufferReader reader, int version,
+      Map<String, dynamic> kwargs) {
+    late int fps, _frames;
+    if (version == 100) {
+      final List<dynamic> lst = reader.unpack(ConstStructs.double_ushort);
+      fps = lst[0];
+      _frames = lst[1];
+    } else {
+      // version == 200
+      fps = reader.unpack(ConstStructs.float).toInt();
+      _frames = reader.unpack(ConstStructs.float).toInt();
+    }
     final int _people = reader.unpack(ConstStructs.ushort);
-    final int fps = lst[0];
-    int _frames = lst[1];
 
     final int _points =
         header.components.map((c) => c.points.length).reduce((a, b) => a + b);
@@ -56,7 +64,7 @@ class PoseBody {
     return PoseBody(fps.toDouble(), data, confidence);
   }
 
-  /// Reads pose body data for version 0.1 frames.
+  /// Reads pose body data for version 0.1 and 0.2 frames.
   ///
   /// Takes [frames], [shape], [reader], [startFrame], and [endFrame] as parameters.
   /// Returns the read data.

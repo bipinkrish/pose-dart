@@ -43,4 +43,4 @@ void main() async {
 }
 ```
 
-![Demo Gif](https://raw.githubusercontent.com/bipinkrish/pose/master/assets/demo.gif)
+![Demo Gif](https://raw.githubusercontent.com/bipinkrish/pose/master/test/data/test.gif)

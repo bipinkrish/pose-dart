@@ -35,3 +35,7 @@
 
 - Async Tasks
 
+## 1.1.6
+
+- Support v0.2 files
+
