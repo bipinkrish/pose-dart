@@ -3,6 +3,7 @@ import 'package:pose/src/masked_array.dart';
 import 'package:pose/src/normalization_3d.dart';
 import 'package:pose/src/pose.dart';
 import 'package:pose/src/pose_body.dart';
+import 'package:pose/src/pose_formats.dart';
 import 'package:pose/src/pose_header.dart';
 
 /// Computes the Euclidean distance between two sets of points along the last
@@ -17,7 +18,7 @@ MaskedArray distanceBatch(MaskedArray p1s, MaskedArray p2s) {
 
 /// Recognized pose formats (subset of the Python library that is detectable
 /// from component names without native dependencies).
-enum KnownPoseFormat { holistic, openpose, openpose135 }
+enum KnownPoseFormat { holistic, openpose, openpose135, alphapose133 }
 
 const List<String> _holisticComponents = [
   'POSE_LANDMARKS',
@@ -43,6 +44,7 @@ KnownPoseFormat detectKnownPoseFormat(PoseHeader header) {
     if (_holisticComponents.contains(name)) return KnownPoseFormat.holistic;
     if (_openposeComponents.contains(name)) return KnownPoseFormat.openpose;
     if (name == 'BODY_135') return KnownPoseFormat.openpose135;
+    if (name == 'BODY_133') return KnownPoseFormat.alphapose133;
   }
   throw UnsupportedError(
       'Could not detect pose format from components: $names');
@@ -63,6 +65,11 @@ KnownPoseFormat detectKnownPoseFormat(PoseHeader header) {
       return (
         (c: 'pose_keypoints_2d', p: 'RShoulder'),
         (c: 'pose_keypoints_2d', p: 'LShoulder')
+      );
+    case KnownPoseFormat.alphapose133:
+      return (
+        (c: 'BODY_133', p: 'right_shoulder'),
+        (c: 'BODY_133', p: 'left_shoulder')
       );
   }
 }
@@ -122,7 +129,8 @@ Map<String, List<String>> _legPointsToRemove(Pose pose) {
         ]
       };
     case KnownPoseFormat.openpose135:
-      throw UnsupportedError('poseHideLegs is not supported for openpose_135');
+    case KnownPoseFormat.alphapose133:
+      throw UnsupportedError('poseHideLegs is not supported for this format');
   }
 }
 
@@ -168,7 +176,8 @@ int getHandWristIndex(Pose pose, String hand) {
       return pose.header
           .getPointIndex('hand_${hand.toLowerCase()}_keypoints_2d', 'BASE');
     case KnownPoseFormat.openpose135:
-      throw UnsupportedError('getHandWristIndex unsupported for openpose_135');
+    case KnownPoseFormat.alphapose133:
+      throw UnsupportedError('getHandWristIndex unsupported for this format');
   }
 }
 
@@ -182,8 +191,9 @@ int getBodyHandWristIndex(Pose pose, String hand) {
       return pose.header
           .getPointIndex('pose_keypoints_2d', '${hand.toUpperCase()[0]}Wrist');
     case KnownPoseFormat.openpose135:
+    case KnownPoseFormat.alphapose133:
       throw UnsupportedError(
-          'getBodyHandWristIndex unsupported for openpose_135');
+          'getBodyHandWristIndex unsupported for this format');
   }
 }
 
@@ -328,7 +338,8 @@ Pose fakePose(int numFrames,
         ('BASE', 'M_CMC')
       );
     case KnownPoseFormat.openpose135:
-      throw UnsupportedError('handsComponents unsupported for openpose_135');
+    case KnownPoseFormat.alphapose133:
+      throw UnsupportedError('handsComponents unsupported for this format');
   }
 }
 
@@ -377,3 +388,45 @@ void normalizeHands3d(Pose pose,
   if (leftHand) normalizeComponent3d(pose, hands.$1, plane, line);
   if (rightHand) normalizeComponent3d(pose, hands.$2, plane, line);
 }
+
+/// Returns the standard component table for a known pose [format].
+List<PoseHeaderComponent> getStandardComponentsForKnownFormat(
+    KnownPoseFormat format) {
+  switch (format) {
+    case KnownPoseFormat.holistic:
+      return holisticComponents();
+    case KnownPoseFormat.openpose:
+      return openposeComponents();
+    case KnownPoseFormat.openpose135:
+      return openpose135Components();
+    case KnownPoseFormat.alphapose133:
+      return alphapose133Components();
+  }
+}
+
+/// Random holistic pose (POSE/FACE/hands/WORLD landmarks) for tests/demos.
+Pose fakeHolisticPose(int numFrames,
+        {int numPeople = 1, double fps = 25.0, math.Random? rng}) =>
+    fakePose(numFrames,
+        numPeople: numPeople,
+        fps: fps,
+        components: holisticComponents(),
+        rng: rng);
+
+/// Random OpenPose (137-point) pose for tests/demos.
+Pose fakeOpenposePose(int numFrames,
+        {int numPeople = 1, double fps = 25.0, math.Random? rng}) =>
+    fakePose(numFrames,
+        numPeople: numPeople,
+        fps: fps,
+        components: openposeComponents(),
+        rng: rng);
+
+/// Random OpenPose-135 pose for tests/demos.
+Pose fakeOpenpose135Pose(int numFrames,
+        {int numPeople = 1, double fps = 25.0, math.Random? rng}) =>
+    fakePose(numFrames,
+        numPeople: numPeople,
+        fps: fps,
+        components: openpose135Components(),
+        rng: rng);

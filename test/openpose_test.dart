@@ -31,7 +31,8 @@ void main() {
       },
     };
 
-    final Pose pose = loadOpenpose(frames, [body()], width: 100, height: 100);
+    final Pose pose =
+        loadOpenpose(frames, components: [body()], width: 100, height: 100);
 
     expect((pose.body.data as List).length, equals(2)); // frames
     expect(pose.body.data[0][0].length, equals(2)); // points
@@ -63,7 +64,7 @@ void main() {
         ]
       }));
 
-      final Pose pose = loadOpenposeDirectory(dir.path, [body()]);
+      final Pose pose = loadOpenposeDirectory(dir.path, components: [body()]);
       expect((pose.body.data as List).length, equals(2));
       expect(pose.body.data[1][0][0], equals([3, 3]));
     } finally {

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 import 'package:pose/src/pose.dart';
 import 'package:pose/src/pose_body.dart';
+import 'package:pose/src/pose_formats.dart';
 import 'package:pose/src/pose_header.dart';
 
 /// Loads OpenPose-style keypoint [frames] into a [Pose].
@@ -12,18 +13,19 @@ import 'package:pose/src/pose_header.dart';
 /// the layout (names must match the JSON keys; point counts must match) — pass
 /// your own so the large built-in OpenPose tables aren't required.
 Pose loadOpenpose(
-  Map<int, dynamic> frames,
-  List<PoseHeaderComponent> components, {
+  Map<int, dynamic> frames, {
+  List<PoseHeaderComponent>? components,
   double fps = 24,
   int width = 1000,
   int height = 1000,
   int depth = 0,
   int? numFrames,
 }) {
+  final List<PoseHeaderComponent> comps = components ?? openposeComponents();
   final PoseHeader header =
-      PoseHeader(0.2, PoseHeaderDimensions(width, height, depth), components);
+      PoseHeader(0.2, PoseHeaderDimensions(width, height, depth), comps);
   final int totalPoints = header.totalPoints();
-  final int dims = components[0].format.length - 1;
+  final int dims = comps[0].format.length - 1;
 
   final int nf = numFrames ?? (frames.keys.reduce(max) + 1);
   final int people = frames.values
@@ -44,7 +46,7 @@ Pose loadOpenpose(
     for (int personId = 0; personId < peopleList.length; personId++) {
       final Map person = peopleList[personId] as Map;
       int keypointId = 0;
-      for (final PoseHeaderComponent component in components) {
+      for (final PoseHeaderComponent component in comps) {
         final List numbers = person[component.name] as List;
         final int step = component.format.length;
         for (int k = 0; k + step - 1 < numbers.length; k += step) {
@@ -74,8 +76,8 @@ int getFrameId(String filename, RegExp pattern) {
 /// Loads a directory of OpenPose `*_keypoints.json` files into a [Pose].
 /// [components] is supplied by the caller (see [loadOpenpose]).
 Pose loadOpenposeDirectory(
-  String directory,
-  List<PoseHeaderComponent> components, {
+  String directory, {
+  List<PoseHeaderComponent>? components,
   double fps = 24,
   int width = 1000,
   int height = 1000,
@@ -92,7 +94,8 @@ Pose loadOpenposeDirectory(
       frames[getFrameId(name, pat)] = jsonDecode(entry.readAsStringSync());
     }
   }
-  return loadOpenpose(frames, components,
+  return loadOpenpose(frames,
+      components: components,
       fps: fps,
       width: width,
       height: height,

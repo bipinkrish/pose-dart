@@ -8,6 +8,9 @@ topics:
 environment:
   sdk: ^3.0.0
 
+executables:
+  pose_info:
+
 dependencies:
   image: ^4.5.2
   tuple: ^2.0.2

@@ -30,9 +30,14 @@ At the core of the file format is `Header` and a `Body`.
 - ✔️ Geometry representations (`distance`, `angle`, `innerAngle`, `pointLineDistance`) + `OpticalFlowCalculator`
 - ✔️ Holistic utils (`poseHideLegs`, `correctWrists`, `reduceHolistic`, `normalizePoseSize`)
 - ✔️ 3D normalization (`PoseNormalizer`, `normalizeHands3d`) + format conversion (`convertPose`)
-- ✔️ OpenPose JSON loading (`loadOpenpose`, `loadOpenposeDirectory`)
+- ✔️ OpenPose & AlphaPose loading (`loadOpenpose`, `loadOpenposeDirectory`, `loadAlphapose`)
+- ✔️ Standard format tables + fakes (`holisticComponents`, `openposeComponents`, `fakeHolisticPose`, …)
 - ✔️ Visualization → GIF and PNG/APNG (`saveGif`, `savePng`)
 - ✔️ `pose_info` CLI (`dart run pose:pose_info <file.pose>`)
+
+> Native features (MediaPipe pose estimation, mp4 video I/O) are out of scope for
+> this pure-Dart package — see [doc/phase4-native.md](doc/phase4-native.md) for
+> the design of an optional `pose_flutter` add-on.
 
 See [PORTING.md](PORTING.md) for the full parity roadmap vs. the Python library.
 
