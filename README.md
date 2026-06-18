@@ -27,6 +27,9 @@ At the core of the file format is `Header` and a `Body`.
 - ✔️ Augmentation (`augment2d`, `flip`, `matmul`)
 - ✔️ Interpolation (`interpolate`; linear + cubic spline)
 - ✔️ Transforms (`getComponents`/`removeComponents`, `getPoints`, `selectFrames`, `sliceStep`, `bbox`, frame dropout)
+- ✔️ Geometry representations (`distance`, `angle`, `innerAngle`, `pointLineDistance`) + `OpticalFlowCalculator`
+- ✔️ Holistic utils (`poseHideLegs`, `correctWrists`, `reduceHolistic`, `normalizePoseSize`)
+- ✔️ 3D normalization (`PoseNormalizer`, `normalizeHands3d`) + format conversion (`convertPose`)
 - ✔️ Visualization (2x slow compared to python and supports only GIF)
 
 See [PORTING.md](PORTING.md) for the full parity roadmap vs. the Python library.

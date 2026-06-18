@@ -137,6 +137,51 @@ class MaskedArray {
   MaskedArray copy() => MaskedArray(
       Float64List.fromList(values), Uint8List.fromList(mask), shape.toList());
 
+  /// Returns a copy with masked values replaced by [value] and the mask cleared.
+  MaskedArray filled([double value = 0]) {
+    final Float64List out = Float64List.fromList(values);
+    for (int i = 0; i < out.length; i++) {
+      if (mask[i] != 0) out[i] = value;
+    }
+    return MaskedArray(out, Uint8List(out.length), shape.toList());
+  }
+
+  /// Alias for `filled(0)`.
+  MaskedArray zeroFilled() => filled(0);
+
+  /// Replaces NaN values with [value], preserving the mask.
+  MaskedArray fixNaN([double value = 0]) {
+    final Float64List out = Float64List.fromList(values);
+    for (int i = 0; i < out.length; i++) {
+      if (out[i].isNaN) out[i] = value;
+    }
+    return MaskedArray(out, Uint8List.fromList(mask), shape.toList());
+  }
+
+  /// Returns a view with a different [newShape] (same total size, same order).
+  MaskedArray reshape(List<int> newShape) {
+    if (_prod(newShape) != size) {
+      throw ArgumentError('Cannot reshape size $size into $newShape');
+    }
+    return MaskedArray(values, mask, newShape);
+  }
+
+  /// Appends a trailing axis of size 1 (`(...) -> (..., 1)`).
+  MaskedArray unsqueezeLast() => reshape([...shape, 1]);
+
+  /// Takes component [i] along the last axis, dropping it (`(..., D) -> (...)`).
+  MaskedArray takeLast(int i) {
+    final int d = shape.last;
+    final int outSize = size ~/ d;
+    final Float64List out = Float64List(outSize);
+    final Uint8List outMask = Uint8List(outSize);
+    for (int r = 0; r < outSize; r++) {
+      out[r] = values[r * d + i];
+      outMask[r] = mask[r * d + i];
+    }
+    return MaskedArray(out, outMask, shape.sublist(0, ndim - 1));
+  }
+
   // ---------------------------------------------------------------------------
   // Element-wise operations
   // ---------------------------------------------------------------------------
