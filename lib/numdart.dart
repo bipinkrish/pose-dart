@@ -16,6 +16,7 @@ class ConstStructs {
   static final Struct float = Struct("<f", 4);
   static final Struct short = Struct("<h", 2);
   static final Struct ushort = Struct("<H", 2);
+  static final Struct uint = Struct("<I", 4);
   static final Struct double_ushort = Struct("<HH", 4);
   static final Struct triple_ushort = Struct("<HHH", 6);
 }
@@ -164,43 +165,8 @@ List<double> mean(List<List<num>> values, {int? axis}) {
   }
 }
 
-/// Represents a masked array with data and mask.
-class MaskedArray {
-  final List data;
-  final List<List<int>> mask;
-
-  MaskedArray(this.data, this.mask);
-
-  /// Rounds the data values in the masked array.
-  MaskedArray rint() {
-    final List<List<dynamic>> roundedData = [];
-    for (int i = 0; i < data.length; i++) {
-      List<dynamic> row = [];
-      for (int j = 0; j < data[i].length; j++) {
-        if (mask[i][j] != 0) {
-          row.add(_round(data[i][j]));
-        } else {
-          row.add(data[i][j]);
-        }
-      }
-      roundedData.add(row);
-    }
-    return MaskedArray(roundedData, mask);
-  }
-
-  List round() {
-    return _roundList(data);
-  }
-
-  dynamic _round(dynamic elem) {
-    if (elem is List) {
-      return _roundList(elem);
-    } else {
-      return (elem).round();
-    }
-  }
-
-  List<dynamic> _roundList(List<dynamic> elements) {
-    return elements.map((e) => e is List ? _roundList(e) : e.round()).toList();
-  }
-}
+/// Recursively rounds every number in a (possibly nested) list to the nearest
+/// integer, preserving the nesting structure.
+dynamic roundNested(dynamic x) => x is List
+    ? [for (final dynamic e in x) roundNested(e)]
+    : (x as num).round();

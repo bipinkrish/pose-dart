@@ -1,0 +1,26 @@
+# Publishes the package to pub.dev when a version tag is pushed.
+#
+# One-time setup (required, done by a package uploader on pub.dev):
+#   pub.dev → package admin → "Automated publishing" →
+#   "Enable publishing from GitHub Actions" with:
+#     Repository:   bipinkrish/pose-dart
+#     Tag pattern:  v{{version}}
+#
+# The tag must match the pubspec version (the `v{{version}}` pattern above).
+#
+# Auth uses GitHub's OIDC token — no PUB_TOKEN / secrets to manage.
+# Docs: https://dart.dev/tools/pub/automated-publishing
+
+name: Publish to pub.dev
+
+on:
+  push:
+    tags:
+      # Matches v1.2.3, v1.2.3+4, v1.2.3-beta, etc.
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+jobs:
+  publish:
+    permissions:
+      id-token: write # required for OIDC authentication with pub.dev
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1

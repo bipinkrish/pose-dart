@@ -6,8 +6,6 @@ import 'dart:typed_data';
 import 'package:image/image.dart';
 import 'package:pose/pose.dart';
 import 'package:pose/numdart.dart' as nd;
-import 'package:pose/numdart.dart' show MaskedArray;
-import 'package:pose/src/pose_header.dart';
 import 'package:tuple/tuple.dart';
 
 /// Class responsible for visualizing poses.
@@ -20,7 +18,7 @@ class PoseVisualizer {
   PoseVisualizer(this.pose, {this.thickness}) : fps = pose.body.fps;
 
   /// Draws a single frame of the pose on the given image.
-  Image _drawFrame(MaskedArray frame, List frameConfidence, Image img) {
+  Image _drawFrame(List frame, List frameConfidence, Image img) {
     final Pixel pixelColor = img.getPixel(0, 0);
     final Tuple3<int, int, int> backgroundColor =
         Tuple3<int, int, int>.fromList(
@@ -43,8 +41,8 @@ class PoseVisualizer {
       );
     }
 
-    for (int i = 0; i < frame.data.length; i++) {
-      final List person = frame.data[i];
+    for (int i = 0; i < frame.length; i++) {
+      final List person = frame[i];
       final List personConfidence = frameConfidence[i];
 
       final List<Tuple2<int, int>> points2D = List<Tuple2<int, int>>.from(
@@ -136,7 +134,7 @@ class PoseVisualizer {
   /// Generates frames for the pose visualization.
   Stream<Image> draw(
       {List<int> backgroundColor = const [0, 0, 0, 0], int? maxFrames}) async* {
-    final List intFrames = MaskedArray(pose.body.data, []).round();
+    final List intFrames = nd.roundNested(pose.body.data) as List;
     final int totalFrames =
         min(intFrames.length, maxFrames ?? intFrames.length);
     final background = Image(
@@ -156,8 +154,8 @@ class PoseVisualizer {
     }
 
     for (int i = 0; i < totalFrames; i++) {
-      yield _drawFrame(MaskedArray(intFrames[i], []), pose.body.confidence[i],
-          background.clone());
+      yield _drawFrame(
+          intFrames[i], pose.body.confidence[i], background.clone());
     }
   }
 
@@ -184,20 +182,43 @@ class PoseVisualizer {
     Uint8List image = await generateGif(frames, fps: fps);
     return await File(fileName).writeAsBytes(image);
   }
+
+  /// Encodes [frames] as PNG bytes. A single frame produces a normal PNG;
+  /// multiple frames produce an animated PNG (APNG).
+  Future<Uint8List> generatePng(Stream<Image> frames) async {
+    final List<Image> collected = [];
+    await for (final Image frame in frames) {
+      collected.add(frame);
+    }
+    if (collected.isEmpty) {
+      throw Exception('No frames to encode.');
+    }
+    final Image container = collected.first;
+    for (final Image frame in collected.skip(1)) {
+      container.addFrame(frame);
+    }
+    return encodePng(container);
+  }
+
+  /// Saves the visualization as a PNG / APNG.
+  Future<File> savePng(String fileName, Stream<Image> frames) async {
+    final Uint8List image = await generatePng(frames);
+    return await File(fileName).writeAsBytes(image);
+  }
 }
 
 class FastAndUglyPoseVisualizer extends PoseVisualizer {
   FastAndUglyPoseVisualizer(Pose pose, {int? thickness})
       : super(pose, thickness: thickness);
 
-  Image _uglyDrawFrame(MaskedArray frame, Image img, int color) {
+  Image _uglyDrawFrame(List frame, Image img, int color) {
     final Tuple2<int, int> ignoredPoint = Tuple2<int, int>.fromList([0, 0]);
 
     //  Note: this can be made faster by drawing polylines instead of lines
     final thickness = 1;
 
-    for (int i = 0; i < frame.data.length; i++) {
-      final List person = frame.data[i];
+    for (int i = 0; i < frame.length; i++) {
+      final List person = frame[i];
 
       final List<Tuple2<int, int>> points2D = List<Tuple2<int, int>>.from(
           person.map((p) => Tuple2<int, int>(p[0], p[1])));
@@ -230,7 +251,7 @@ class FastAndUglyPoseVisualizer extends PoseVisualizer {
 
   Stream<Image> uglyDraw(
       {int backgroundColor = 0, int foregroundColor = 255}) async* {
-    final List intFrames = MaskedArray(pose.body.data, []).round();
+    final List intFrames = nd.roundNested(pose.body.data) as List;
 
     final background = Image(
       width: pose.header.dimensions.width,
@@ -240,7 +261,7 @@ class FastAndUglyPoseVisualizer extends PoseVisualizer {
 
     for (int i = 0; i < intFrames.length; i++) {
       yield _uglyDrawFrame(
-        MaskedArray(intFrames[i], []),
+        intFrames[i],
         background.clone(),
         foregroundColor,
       );

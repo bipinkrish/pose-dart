@@ -21,11 +21,25 @@ At the core of the file format is `Header` and a `Body`.
 
 ## Features
 
-- ✔️ Reading
-- ❌ Normalizing
-- ❌ Augmentation
-- ❌ Interpolation
-- ✔️ Visualization (2x slow compared to python and supports only GIF)
+- ✔️ Reading (v0.0, v0.1, v0.2; optional frame/time slicing)
+- ✔️ Writing (`Pose.write()` → v0.2 bytes)
+- ✔️ Normalizing (`normalize`, `normalizeDistribution`, `focus`)
+- ✔️ Augmentation (`augment2d`, `flip`, `matmul`)
+- ✔️ Interpolation (`interpolate`; linear + cubic spline)
+- ✔️ Transforms (`getComponents`/`removeComponents`, `getPoints`, `selectFrames`, `sliceStep`, `bbox`, frame dropout)
+- ✔️ Geometry representations (`distance`, `angle`, `innerAngle`, `pointLineDistance`) + `OpticalFlowCalculator`
+- ✔️ Holistic utils (`poseHideLegs`, `correctWrists`, `reduceHolistic`, `normalizePoseSize`)
+- ✔️ 3D normalization (`PoseNormalizer`, `normalizeHands3d`) + format conversion (`convertPose`)
+- ✔️ OpenPose & AlphaPose loading (`loadOpenpose`, `loadOpenposeDirectory`, `loadAlphapose`)
+- ✔️ Standard format tables + fakes (`holisticComponents`, `openposeComponents`, `fakeHolisticPose`, …)
+- ✔️ Visualization → GIF and PNG/APNG (`saveGif`, `savePng`)
+- ✔️ `pose_info` CLI (`dart run pose:pose_info <file.pose>`)
+
+> Native features (MediaPipe pose estimation, mp4 video I/O) are out of scope for
+> this pure-Dart package — see [doc/phase4-native.md](doc/phase4-native.md) for
+> the design of an optional `pose_flutter` add-on.
+
+See [PORTING.md](PORTING.md) for the full parity roadmap vs. the Python library.
 
 ## Usage
 

@@ -43,3 +43,13 @@
 
 - Support background color
 
+## 1.2.0
+
+- Add `.pose` file writing (`Pose.write()`, `BufferWriter`, v0.2 output)
+- Add `MaskedArray` and interpolation (linear + cubic spline)
+- Add geometry representations, optical flow, and transform utilities
+- Add 3D normalization (`PoseNormalizer`, `normalizeHands3d`) and pose format conversion
+- Add OpenPose and AlphaPose loading
+- Add standard pose format tables and fake pose generators
+- Add `pose_info` CLI
+- Enhance visualization and performance
