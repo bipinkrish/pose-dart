@@ -59,7 +59,8 @@ class BufferWriter {
           flatten(e);
         }
       } else {
-        throw ArgumentError('packFloats expects num or nested List<num>, got $x');
+        throw ArgumentError(
+            'packFloats expects num or nested List<num>, got $x');
       }
     }
 

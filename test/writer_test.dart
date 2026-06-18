@@ -15,7 +15,8 @@ void expectNestedClose(dynamic a, dynamic b, {double eps = 1e-3}) {
   } else if (a is num && b is num) {
     expect(a.toDouble(), closeTo(b.toDouble(), eps));
   } else {
-    fail('Type mismatch comparing $a (${a.runtimeType}) and $b (${b.runtimeType})');
+    fail(
+        'Type mismatch comparing $a (${a.runtimeType}) and $b (${b.runtimeType})');
   }
 }
 
@@ -80,18 +81,20 @@ void main() {
 
   group('Read slicing', () {
     test('startFrame/endFrame restricts frame count', () {
-      final Uint8List bytes = File('test/data/mediapipe.pose').readAsBytesSync();
+      final Uint8List bytes =
+          File('test/data/mediapipe.pose').readAsBytesSync();
       final Pose full = Pose.read(bytes);
       final int total = (full.body.data as List).length;
 
       final Pose sliced = Pose.read(bytes, startFrame: 5, endFrame: 15);
       expect((sliced.body.data as List).length, equals(10));
-      expect((sliced.body.confidence as List).length, equals(10));
+      expect((sliced.body.confidence).length, equals(10));
       expect(total, greaterThan(15));
     });
 
     test('startTime/startFrame are mutually exclusive', () {
-      final Uint8List bytes = File('test/data/mediapipe.pose').readAsBytesSync();
+      final Uint8List bytes =
+          File('test/data/mediapipe.pose').readAsBytesSync();
       expect(() => Pose.read(bytes, startFrame: 1, startTime: 100),
           throwsArgumentError);
     });
@@ -134,10 +137,14 @@ void main() {
       expect(pose.body.fps, equals(24.0));
 
       final List data = pose.body.data as List;
-      final List conf = pose.body.confidence as List;
+      final List conf = pose.body.confidence;
       // shape: (frames=2, people=1, points=2, dims=2)
-      expect((data.length, data[0].length, data[0][0].length, data[0][0][0].length),
-          equals((2, 1, 2, 2)));
+      expect((
+        data.length,
+        data[0].length,
+        data[0][0].length,
+        data[0][0][0].length
+      ), equals((2, 1, 2, 2)));
       expectNestedClose(data[0][0], [
         [1.0, 2.0],
         [3.0, 4.0]

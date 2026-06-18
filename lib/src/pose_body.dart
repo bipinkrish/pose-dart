@@ -64,8 +64,8 @@ class PoseBody {
 
         for (final PoseHeaderComponent component in header.components) {
           final int fmtLen = component.format.length;
-          final List pts = reader.unpackNum(
-              ConstStructs.float, [component.points.length, fmtLen]);
+          final List pts = reader
+              .unpackNum(ConstStructs.float, [component.points.length, fmtLen]);
           for (final dynamic pt in pts) {
             personData.add((pt as List).sublist(0, fmtLen - 1));
             personConfidence.add(pt[fmtLen - 1]);

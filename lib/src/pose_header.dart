@@ -178,6 +178,5 @@ class PoseHeader {
       components.map((c) => c.points.length).fold(0, (a, b) => a + b);
 
   /// Number of spatial dimensions (X, Y, Z, ...) excluding confidence.
-  int numDims() =>
-      components.map((c) => c.format.length).reduce(max) - 1;
+  int numDims() => components.map((c) => c.format.length).reduce(max) - 1;
 }
