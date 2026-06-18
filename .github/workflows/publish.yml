@@ -6,9 +6,6 @@
 #     Repository:   bipinkrish/pose-dart
 #     Tag pattern:  v{{version}}
 #
-# Then to release:
-#   1. Bump `version:` in pubspec.yaml (e.g. 1.1.8) and add a CHANGELOG entry.
-#   2. git tag v1.1.8 && git push origin v1.1.8
 # The tag must match the pubspec version (the `v{{version}}` pattern above).
 #
 # Auth uses GitHub's OIDC token — no PUB_TOKEN / secrets to manage.
