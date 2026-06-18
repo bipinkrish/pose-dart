@@ -21,11 +21,15 @@ At the core of the file format is `Header` and a `Body`.
 
 ## Features
 
-- ✔️ Reading
-- ❌ Normalizing
-- ❌ Augmentation
-- ❌ Interpolation
+- ✔️ Reading (v0.0, v0.1, v0.2; optional frame/time slicing)
+- ✔️ Writing (`Pose.write()` → v0.2 bytes)
+- ✔️ Normalizing (`normalize`, `normalizeDistribution`, `focus`)
+- ✔️ Augmentation (`augment2d`, `flip`, `matmul`)
+- ✔️ Interpolation (`interpolate`; linear + cubic spline)
+- ✔️ Transforms (`getComponents`/`removeComponents`, `getPoints`, `selectFrames`, `sliceStep`, `bbox`, frame dropout)
 - ✔️ Visualization (2x slow compared to python and supports only GIF)
+
+See [PORTING.md](PORTING.md) for the full parity roadmap vs. the Python library.
 
 ## Usage
 

@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:pose/pose.dart';
-import 'package:pose/src/pose_header.dart';
 import 'package:test/test.dart';
 
 void main() {
