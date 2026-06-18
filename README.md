@@ -39,8 +39,6 @@ At the core of the file format is `Header` and a `Body`.
 > this pure-Dart package — see [doc/phase4-native.md](doc/phase4-native.md) for
 > the design of an optional `pose_flutter` add-on.
 
-See [PORTING.md](PORTING.md) for the full parity roadmap vs. the Python library.
-
 ## Usage
 
 ```dart
@@ -57,4 +55,4 @@ void main() async {
 }
 ```
 
-![Demo Gif](https://raw.githubusercontent.com/bipinkrish/pose/master/test/data/test.gif)
+![Demo Gif](https://raw.githubusercontent.com/bipinkrish/pose-dart/refs/heads/main/test/data/test.gif)
