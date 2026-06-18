@@ -30,7 +30,9 @@ At the core of the file format is `Header` and a `Body`.
 - ✔️ Geometry representations (`distance`, `angle`, `innerAngle`, `pointLineDistance`) + `OpticalFlowCalculator`
 - ✔️ Holistic utils (`poseHideLegs`, `correctWrists`, `reduceHolistic`, `normalizePoseSize`)
 - ✔️ 3D normalization (`PoseNormalizer`, `normalizeHands3d`) + format conversion (`convertPose`)
-- ✔️ Visualization (2x slow compared to python and supports only GIF)
+- ✔️ OpenPose JSON loading (`loadOpenpose`, `loadOpenposeDirectory`)
+- ✔️ Visualization → GIF and PNG/APNG (`saveGif`, `savePng`)
+- ✔️ `pose_info` CLI (`dart run pose:pose_info <file.pose>`)
 
 See [PORTING.md](PORTING.md) for the full parity roadmap vs. the Python library.
 

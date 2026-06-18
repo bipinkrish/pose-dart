@@ -11,3 +11,5 @@ export 'src/representation.dart';
 export 'src/optical_flow.dart';
 export 'src/normalization_3d.dart';
 export 'src/pose_converter.dart';
+export 'src/openpose.dart';
+export 'src/pose_info.dart';

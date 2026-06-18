@@ -182,6 +182,29 @@ class PoseVisualizer {
     Uint8List image = await generateGif(frames, fps: fps);
     return await File(fileName).writeAsBytes(image);
   }
+
+  /// Encodes [frames] as PNG bytes. A single frame produces a normal PNG;
+  /// multiple frames produce an animated PNG (APNG).
+  Future<Uint8List> generatePng(Stream<Image> frames) async {
+    final List<Image> collected = [];
+    await for (final Image frame in frames) {
+      collected.add(frame);
+    }
+    if (collected.isEmpty) {
+      throw Exception('No frames to encode.');
+    }
+    final Image container = collected.first;
+    for (final Image frame in collected.skip(1)) {
+      container.addFrame(frame);
+    }
+    return encodePng(container);
+  }
+
+  /// Saves the visualization as a PNG / APNG.
+  Future<File> savePng(String fileName, Stream<Image> frames) async {
+    final Uint8List image = await generatePng(frames);
+    return await File(fileName).writeAsBytes(image);
+  }
 }
 
 class FastAndUglyPoseVisualizer extends PoseVisualizer {
