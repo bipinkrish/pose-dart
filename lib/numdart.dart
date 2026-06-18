@@ -16,6 +16,7 @@ class ConstStructs {
   static final Struct float = Struct("<f", 4);
   static final Struct short = Struct("<h", 2);
   static final Struct ushort = Struct("<H", 2);
+  static final Struct uint = Struct("<I", 4);
   static final Struct double_ushort = Struct("<HH", 4);
   static final Struct triple_ushort = Struct("<HHH", 6);
 }

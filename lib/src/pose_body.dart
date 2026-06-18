@@ -2,6 +2,7 @@
 
 import 'package:pose/src/pose_header.dart';
 import 'package:pose/reader.dart';
+import 'package:pose/writer.dart';
 import 'package:pose/numdart.dart';
 
 /// Class representing a pose body.
@@ -23,11 +24,69 @@ class PoseBody {
   static PoseBody read(
       PoseHeader header, BufferReader reader, Map<String, dynamic> kwargs) {
     final int version_hundred = (header.version * 1000).round();
+    if (version_hundred == 0) {
+      return read_v0_0(header, reader, kwargs);
+    }
     if (version_hundred == 100 || version_hundred == 200) {
       return read_v0_1(header, reader, version_hundred, kwargs);
     }
 
     throw UnimplementedError("Unknown version - ${header.version}");
+  }
+
+  /// Reads pose body data for version 0.0.
+  ///
+  /// In v0.0 each frame stores a variable number of people, and each point's
+  /// coordinates and confidence are interleaved (the last value of every
+  /// point's format is its confidence). Only the first person is kept, mirroring
+  /// the Python implementation.
+  static PoseBody read_v0_0(
+      PoseHeader header, BufferReader reader, Map<String, dynamic> kwargs) {
+    final List<dynamic> fpsFrames = reader.unpack(ConstStructs.double_ushort);
+    final int fps = fpsFrames[0];
+    final int frames = fpsFrames[1];
+
+    final int dims = header.numDims();
+    final int points = header.totalPoints();
+
+    final List framesData = [];
+    final List framesConfidence = [];
+
+    for (int f = 0; f < frames; f++) {
+      final int people = reader.unpack(ConstStructs.ushort);
+      List? person0Data;
+      List? person0Confidence;
+
+      for (int pid = 0; pid < people; pid++) {
+        reader.advance(ConstStructs.short); // Skip person ID
+        final List personData = [];
+        final List personConfidence = [];
+
+        for (final PoseHeaderComponent component in header.components) {
+          final int fmtLen = component.format.length;
+          final List pts = reader.unpackNum(
+              ConstStructs.float, [component.points.length, fmtLen]);
+          for (final dynamic pt in pts) {
+            personData.add((pt as List).sublist(0, fmtLen - 1));
+            personConfidence.add(pt[fmtLen - 1]);
+          }
+        }
+
+        if (pid == 0) {
+          person0Data = personData;
+          person0Confidence = personConfidence;
+        }
+      }
+
+      // In case there is no person, fill with zeros.
+      person0Data ??= List.generate(points, (_) => List.filled(dims, 0.0));
+      person0Confidence ??= List.filled(points, 0.0);
+
+      framesData.add([person0Data]);
+      framesConfidence.add([person0Confidence]);
+    }
+
+    return PoseBody(fps.toDouble(), framesData, framesConfidence);
   }
 
   /// Reads pose body data for version 0.1 and 0.2.
@@ -56,12 +115,40 @@ class PoseBody {
         1;
     _frames = reader.bytesLeft() ~/ (_people * _points * (_dims + 1) * 4);
 
-    final List data = read_v0_1_frames(_frames, [_people, _points, _dims],
-        reader, kwargs['startFrame'], kwargs['endFrame']);
-    final List confidence = read_v0_1_frames(_frames, [_people, _points],
-        reader, kwargs['startFrame'], kwargs['endFrame']);
+    // Resolve frame slicing, allowing start/end to be given either as frame
+    // indices or as times in milliseconds.
+    int? startFrame = kwargs['startFrame'] as int?;
+    int? endFrame = kwargs['endFrame'] as int?;
+    final num? startTime = kwargs['startTime'] as num?;
+    final num? endTime = kwargs['endTime'] as num?;
+    if (startTime != null) {
+      startFrame = (startTime / 1000 * fps).floor();
+    }
+    if (endTime != null) {
+      endFrame = (endTime / 1000 * fps).ceil();
+    }
+
+    final List data = read_v0_1_frames(
+        _frames, [_people, _points, _dims], reader, startFrame, endFrame);
+    final List confidence = read_v0_1_frames(
+        _frames, [_people, _points], reader, startFrame, endFrame);
 
     return PoseBody(fps.toDouble(), data, confidence);
+  }
+
+  /// Writes this pose body to the [writer] using the v0.2 format
+  /// (float fps, uint frame count, ushort people count, then float32 data and
+  /// float32 confidence). Mirrors the Python implementation, which always
+  /// emits the latest format.
+  void write(BufferWriter writer) {
+    final int frames = data.length;
+    final int people = frames > 0 ? (data[0] as List).length : 0;
+
+    writer.packFloat(fps);
+    writer.packUInt(frames);
+    writer.packUShort(people);
+    writer.packFloats(data);
+    writer.packFloats(confidence);
   }
 
   /// Reads pose body data for version 0.1 and 0.2 frames.

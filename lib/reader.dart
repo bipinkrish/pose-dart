@@ -42,6 +42,8 @@ class BufferReader {
       result.add(nd.bytesToFloat(data));
     } else if (s.format == "<h") {
       result.add(nd.bytesToInt(data, signed: true));
+    } else if (s.format == "<I") {
+      result.add(nd.bytesToInt(data));
     } else if (["<H", "<HH", "<HHH"].contains(s.format)) {
       for (int i = 0; i < data.length; i += 2) {
         result.add(nd.bytesToInt(data.sublist(i, i + 2)));
