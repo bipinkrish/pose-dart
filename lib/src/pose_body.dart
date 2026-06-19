@@ -81,7 +81,7 @@ class PoseBody {
         dimMatrix[i][j] = matrix[i][j];
       }
     }
-    return this.matmul(dimMatrix);
+    return matmul(dimMatrix);
   }
 
   /// Flips the data across [axis] (negates that dimension).

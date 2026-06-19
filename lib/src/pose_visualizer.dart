@@ -208,8 +208,7 @@ class PoseVisualizer {
 }
 
 class FastAndUglyPoseVisualizer extends PoseVisualizer {
-  FastAndUglyPoseVisualizer(Pose pose, {int? thickness})
-      : super(pose, thickness: thickness);
+  FastAndUglyPoseVisualizer(super.pose, {super.thickness});
 
   Image _uglyDrawFrame(List frame, Image img, int color) {
     final Tuple2<int, int> ignoredPoint = Tuple2<int, int>.fromList([0, 0]);

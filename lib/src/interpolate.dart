@@ -2,6 +2,7 @@
 ///
 /// Pure Dart replacements for the subset of `scipy.interpolate.interp1d`
 /// behaviour the Python `pose_format` library relies on (linear and cubic).
+library;
 
 /// Returns [n] evenly spaced values from [start] to [stop] (inclusive),
 /// matching `numpy.linspace`.
