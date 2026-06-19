@@ -53,3 +53,9 @@
 - Add standard pose format tables and fake pose generators
 - Add `pose_info` CLI
 - Enhance visualization and performance
+
+## 1.2.1
+
+- Expand README with a full Dart usage guide (installation, read/write, normalization, augmentation, interpolation, visualization, OpenPose/AlphaPose loading, fake data, CLI, and tests)
+- Update package description to reflect the complete API surface
+- Minor refactors: add library declaration in `interpolate.dart`, tidy `PoseVisualizer` constructor usage
