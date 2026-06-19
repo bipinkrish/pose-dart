@@ -1,6 +1,6 @@
 name: pose
-description: Dart library for loading, viewing, augmenting, and handling .pose files
-version: 1.2.0
+description: Dart library for reading, writing, normalizing, augmenting, interpolating, transforming, normalizing and visualizing .pose files
+version: 1.2.1
 repository: https://github.com/bipinkrish/pose-dart
 topics:
   - pose
